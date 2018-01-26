@@ -1,3 +1,9 @@
 *.html
 *.css
 *.js
+*.aux
+*.log
+*.out
+*.pdf
+*.tex
+*.toc

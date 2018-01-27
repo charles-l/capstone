@@ -5,6 +5,7 @@
 @(require scriblib/footnote)
 @(require scriblib/figure)
 @(require "util.rkt")
+@(require latex-utils/scribble/unmap)
 
 @title{Programming Language Implementation}
 @author{Charles Saternos}
@@ -138,13 +139,136 @@ recursion or a monad. However, since many programs don't really need to track
 state and can be written as a series of functions chained together in a
 pipeline, functional programming is an important paradigm to understand.
 
-@subsection{Strong vs weak typing}
 @subsection{Static vs dynamic typing}
+
+Choosing between static and dynamic typing is a decision of whether you value safety or
+flexibility more. With dynamic type systems, variables just point at values that
+track type information. This means that variables can be reassigned to different
+types, and functions aren't guaranteed to return any specific type. This makes code easier
+to write, but harder to reason about (especially in a formal manner).
+
+@code-examples[#:lang "racket" #:context #'here #:show-lang-line #t]|{
+    (define (f x)
+      (cond
+        ((number? x)
+         (add1 x))
+        ((string? x)
+         (string-append x " (≥∇≤)/"))
+        (else x)))
+
+    (f 2)
+    (f "dynamic typing is freedom!")
+    (f '(no one expects a LIST!))
+}|
+
+Given an arbitrary @tt{x} with an unknown type, we're unsure of what our return
+value will be. If we call @tt{f} later in a process and are unsure if its value
+the uncertainty of our result only increases. For quick prototyping, dynamic
+types are convenient and stay out of the way. However, once a system grows, they
+can make debugging and maintenance harder (since there are few assurances about
+types).
+
+In comparison, static typing @italic{requires} the programmer to notate type
+information for functions and variables. Then, the type system can prove
+correctness about types and ensure that every edge case is accounted for.
+
+@code-examples[#:lang "typed/racket" #:context #'here #:show-lang-line #t]|{
+    (define (f (x : Real))
+      (add1 x))
+
+    (f 2)
+    (f "static typing makes code safe!")
+}|
+
+Since the types are defined by the programmer and there's no room for
+ambiguities, the types of variables can be narrowed at compile time. Most of
+the time, the type of every variable is known (with only a few exceptions to
+allow for polymorphic functions that encourage code reuse).
+
+Storing and checking type information at runtime uses more resources than
+pre-computing the information at compile time. Static typing tends to result in
+faster code at execution time.
+
+@subsection{Strong vs weak typing}
+
+TODO: do the strong/weak, static/dynamic continuum drawing
+
+The other axis that must be considered is strong vs weak types. Weak typing is
+more "forgiving" in the sense that the language will attempt to cast the value
+to be what the programmer "meant." This may be considered a convenience by some,
+but it can also lead to subtle bugs where unexpected typecasts result in
+incorrect types.
+
+Most modern languages tend towards a stronger type system (and static languages
+rarely allow strange casts). The biggest exception is C, which is a language
+that was designed to write dangerous and unsafe code. Most scripting languages
+are somewhat stringent about types (e.g. they won't let you add a number and a
+string) and are usually allow implicit casting between floating point and decimal
+numbers. A notable deviation from this is JavaScript which will attempt to cast
+anything (even a function!) to a string if a concatenation operation is
+attempted with a variable of a different type.
+
 @subsection{Lazy vs strict evaluation}
 
-TODO: lambda calculus
+Strict evaluation evaluates all the expressions in a statement before calling
+the statement itself. Lazy evaluation waits until the last possible moment to
+execute the arguments. If the argument is never used, it never gets evaluated.
+Most languages use strict evaluation, with the usual exception being conditional
+statements.
+
+@code-examples[#:lang "racket" #:context #'here #:show-lang-line #t]|{
+    (define (false-fun)
+      (print "YOU'VE BEEN TERMINATED")
+      (newline)
+      #f)
+    (define (true-fun)
+      (print "continue...")
+      (newline)
+      #t)
+    (and (false-fun) (true-fun) (true-fun))
+    (and (true-fun) (false-fun) (true-fun))
+    (and (true-fun) (true-fun) (false-fun))
+}|
+
+As soon as a condition fails, the @tt{and} stops evaluating, which is a lazy way
+of checking results. In languages with lazy evaluation, @italic{every} function operates this
+way (i.e. it doesn't compute the argument until it needs the value), which
+allows for some interesting abilities.
+
+For instance, in strict evaluation, the following recursive function would loop forever
+since there's no base condition.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define (dont-stop-believing)
+      (cons 'hold-on-to-that-feeeeeeling (dont-stop-believing)))
+}|
+
+However, with Racket's lazy language implementation, this code will operate as a
+lazy stream (which doesn't compute the next value in the stream until it is
+needed).
+
+@code-examples[#:lang "lazy" #:context #'here]|{
+    (define (dont-stop-believing)
+      (cons 'hold-on-to-that-feeeeeeling (dont-stop-believing)))
+
+    (car (dont-stop-believing))
+
+    (car (cdr (dont-stop-believing)))
+
+    (cdr (dont-stop-believing))
+}|
+
+Looking at the last result, we can see it creates a promise@note{A
+@bold{promise} is simple way of delaying an evaluation (by wrapping
+it in an thunk (an anonymous function)), and @bold{forcing} the value to be
+computed when it is needed.}
+
+
+
+@subsection{Lambda Calculus}
 
 @section{Parsing and Semantic Analysis}
+
 
 TODO: give analogy
 

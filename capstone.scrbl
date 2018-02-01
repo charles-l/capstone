@@ -5,7 +5,6 @@
 @(require scriblib/footnote)
 @(require scriblib/figure)
 @(require "util.rkt")
-@(require latex-utils/scribble/unmap)
 
 @title{Programming Language Implementation}
 @author{Charles Saternos}
@@ -238,16 +237,16 @@ allows for some interesting abilities.
 For instance, in strict evaluation, the following recursive function would loop forever
 since there's no base condition.
 
-@code-examples[#:lang "racket" #:context #'here]|{
+@code-examples[#:lang "racket" #:context #'here #:show-lang-line #t]|{
     (define (dont-stop-believing)
       (cons 'hold-on-to-that-feeeeeeling (dont-stop-believing)))
 }|
 
 However, with Racket's lazy language implementation, this code will operate as a
 lazy stream (which doesn't compute the next value in the stream until it is
-needed).
+needed). Therefore, we can have an infinite data structure.
 
-@code-examples[#:lang "lazy" #:context #'here]|{
+@code-examples[#:lang "lazy" #:context #'here #:show-lang-line #t]|{
     (define (dont-stop-believing)
       (cons 'hold-on-to-that-feeeeeeling (dont-stop-believing)))
 
@@ -261,16 +260,30 @@ needed).
 Looking at the last result, we can see it creates a promise@note{A
 @bold{promise} is simple way of delaying an evaluation (by wrapping
 it in an thunk (an anonymous function)), and @bold{forcing} the value to be
-computed when it is needed.}
+computed when it is needed.}, which is how strictly evaluated languages
+like Racket can allow lazy languages.
 
-
+Lazy evaluation doesn't work properly with side-effects, (since an argument might
+change while a function is running). Lazy-evaluation isn't found in most
+programming languages besides a few purely functional languages like Haskell,
+and in a few languages that encourage the functional paradigm (like Scheme and
+OCaml).
 
 @subsection{Lambda Calculus}
 
 @section{Parsing and Semantic Analysis}
 
+Like spoken languages, programming languages have a grammar. However human
+languages aren't extremely strict in their rules and are full of weak rules and
+squishy contextual sentences. This is why natural language processing is so
+hard, and why we can't program computers in English.
 
-TODO: give analogy
+The reason a programming language is understandable to the stupid metal
+machine is because it is described in a (usually context-free) formal grammar.
+The formal grammars that language designers use to describe the syntax for a
+grammar can easily be "parsed." The parser for a language will read a text file
+as input, and will convert that code into a "parse tree" which is a tree
+structure that is more convenient for a compiler or interpreter to understand.
 
 The first step taken by any interpretor or compiler is parsing. The
 parsing step converts the plain-text source code into IR (intermediate

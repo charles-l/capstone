@@ -1,5 +1,6 @@
 #lang scribble/lp2
 @(require scribble-code-examples)
+@(require scriblib/footnote)
 
 Since @tt{yacc} and @tt{lex} are specialized domain specific languages with
 their own grammars and syntaxes, so they stand out in source since they don't follow
@@ -74,24 +75,115 @@ So if we want to parse an excited word, we could parse many letters followed by
 an exclamation point.
 
 @code-examples[#:lang "racket" #:eval ev #:context #'here]|{
-  (parse (>>= (many $letter)) "woot!")
+  (parse (>>= (many $letter)
+              (lambda (previous-letters)
+                (char #\!)))
+         "woot!")
 }|
 
+However, since @tt{previous-result} isn't used, @tt{>>=} only returns the
+secound parse result. We need to combine the results and return it as a parse
+value. In the context of parser combinators the @tt{return} function doens't have
+quite the same meaning as the return statement in most languages. It doesn't
+terminate execution and return the result immediately - instead it simply
+packages up whatever value was passed to it as a pares result and passes it
+along as any other expression.
 
-@code-examples[#:lang "at-exp racket" #:context #'here]|{
-(parse-result $anyChar "a")
-(parse-result $digit "a")
-(parse-result $letter "a")
-(parse-result (<or> $letter $digit) "a")
-(parse-result (many $letter) "abc123")
+@code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+(parse (return "i don't care about what needs to be parsed!") "plz parse me")
 }|
+
+It can be used with conditions as a fallback result, since it always succeeds
+
+@code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+(parse (<or> (many1 $digit) (return "oops - no digits")) "no numbers here, dood")
+}|
+
+So in our case of trying to combine the previous results, we want to return the
+combined result of two parsers
+
+@code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+  (parse (>>= (many $letter)
+              (lambda (previous-letters)
+                (>>= (char #\!)
+                     (lambda (exclamation-point)
+                       (return (append previous-letters (list exclamation-point)))))))
+         "woot!")
+}|
+
+Using the simple concept of parse results and function composition, we can
+then build a library of utility functions to make writing parser combinators
+easier. A few notable utility functions are,
+
+@itemlist[@item{@tt{>>} (bind, ignoring returned result)
+                        @code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+                        (parse (>> (string "don't care") (many1 $digit))
+                               "don't care123123")
+                        }|
+                        When we want to ensure a keyword appears, but don't care
+                        about returning the result in the parse tree, this
+                        function is very useful.
+                        }
+                        @item{@tt{parser-seq} and @tt{parser-one}
+                        (parse a sequence of parsers, combining specified
+                               results)
+                        @code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+                        (parse (parser-seq
+                                 (many1 $letter)
+                                 (many1 $digit)
+                                 (many1 (char #\!)))
+                               "awesom3!!")
+
+                        (parse (parser-seq
+                                 (~ (many1 $letter))
+                                 (many1 $digit)
+                                 (many1 (char #\!)))
+                               "awesom3!!")
+
+                        (parse (parser-one
+                                 (many1 $letter)
+                                 (~> (many1 $digit))
+                                 (many1 (char #\!)))
+                               "awesom3!!")
+                        }|
+                        Both these functions just do the bind calls internally and
+                        hide the lambdas to make the code easier to read.
+                        @tt{parser-seq} will combine the parse results into a
+                        list, ignoring any parsers with a @tt{~} in front of it,
+                        and @tt{parser-one} is the exact same, but it only
+                        returns one result (whichever parser is prefixed with @tt{~>}).
+                        }
+
+                        @item{@tt{sepBy} and @tt{endBy} (parse seperators)
+                        @code-examples[#:lang "racket" #:eval ev #:context
+                                       #'here]|{
+                        (parse (sepBy (many1 $letter) $spaces)
+                               "such words many wow")
+                        (parse (endBy (many1 $letter) (char #\,))
+                               "expect,a,comma,bru,")
+                        }|
+
+                        These functions are fairly self-explanitory - they
+                        parse the first parser until they reach the seperator
+                        (the second argument) and repeat until the end.
+                        @tt{sepBy} expects no seperator at the end and @tt{endBy}
+                        expects the separator.
+                        }
+           ]
+
+There are many more combinators that can be found in the parsack
+documentation @cite{Parsack docs}, but these are the main ones used for the
+parser we build next.
+
+Again, we're going to parse a C-ish language, since it has enough non-trivial
+syntax rules to be interesting.
 
 @chunk[<includes>
 (require parsack)
 ]
 
-A "rule" (which is really a function) to parse numbers could be
-defined:
+One of the previous parse "rules" could be defined as a function in a parser
+combinator. A number parser would be written,
 
 @chunk[<number>
 (define $number
@@ -102,10 +194,8 @@ defined:
    (>>= (many $digit)
         (lambda (r)
           (return (string->number (list->string r)))))))
-]
-
-In this case, the angle bracketed function @tt{<or>} is the literal function
-name (not a reference to a different programming block in this book).
+]@note{In this case, the angle bracketed function @tt{<or>} is the actual function
+name (not a literate programming reference to a different block).}
 
 Parser combinators look like regular code in the language. Besides a few odd
 looking functions, they're fairly self-explanatory. The rule above parses either
@@ -126,8 +216,8 @@ doubles) or a series of digits (for integers)
             (~> $anyChar)
             (char #\')))]
 
-@chunk[<var-assign>
-(define $var-assign
+@chunk[<var-assign-ugly>
+(define $var-assign-ugly
  (>>=
   (parser-seq
    $identifier
@@ -137,6 +227,32 @@ doubles) or a series of digits (for integers)
    $expr))
  (lambda (j)
    (return j)))]
+
+It's going to get annoying annoying having to parse out the @tt{$spaces} after
+every word in the expression, so next, we'll write a macro to insert optional
+spaces between every parser.
+
+@chunk[<intersperse-spaces>
+(require (for-syntax racket/match))
+(define-syntax (intersperse-spaces stx)
+  ;FIXME
+  (letrec ((intersperse
+             (match-lambda**
+               (('() _) '())
+               (((list x) _) `(,x))
+               (((cons a b) sep) (cons a (cons sep (intersperse b sep))))))))
+  (datum->syntax stx (intersperse (cdr (syntax->datum stx)) '(~ $spaces))))]
+
+@chunk[<var-assign>
+(define $var-assign
+  (>>=
+    (parser-seq
+      (intersperse-spaces
+        $identifier
+        (char #\=)
+        $expr))
+    (lambda (j)
+      (return (list (cadr j) (car j) (caddr j))))))]
 
 FIXME: verify that this isn't recurseive (it might be)
 @chunk[<binop>
@@ -215,7 +331,9 @@ TODO: write macro that inserts (~ $spaces) for me
              (~ (char #\})) (~ $spaces)
             (return '())))))]
 
+
 @chunk[<stmt-list>
+  (define $stmt (string "stmt"))
   (define $stmt-list
     (endBy $stmt (parser-seq $spaces (char #\;) $spaces)))]
 
@@ -235,6 +353,29 @@ TODO: write macro that inserts (~ $spaces) for me
       $stmt-list
       (char #\})
     ))
+]
+
+@chunk[<*>
+(provide c-parser-combinator $var-assign intersperse-spaces)
+<includes>
+<number>
+<string>
+<char>
+<expr>
+<intersperse-spaces>
+<var-assign>
+<binop>
+<funcall>
+<expr-list>
+<arg-list>
+<var-decl>
+<return>
+<for-stmt>
+<if-stmt>
+<stmt-list>
+<func-def>
+(define (c-parser-combinator s)
+  (parse-result $func-def s))
 ]
 
 Most of this code is fairly similar - the difference between the parser

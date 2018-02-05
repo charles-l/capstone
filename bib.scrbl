@@ -15,9 +15,28 @@
     #:url "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf")
 
   (bib-entry
+    #:key "SICP"
+    #:title "Structure and Interpretation of Computer Programs"
+    #:is-book? #t
+    #:author "Harold Abelson, Jerry Sussman and Julia Sussman")
+
+  (bib-entry
     #:key "Pierce"
     #:title "Types and Programming Languages"
     #:is-book? #t
     #:author "Benjamin C. Pierce"
+    )
+  (bib-entry
+    #:key "Pierce"
+    #:title "Types and Programming Languages"
+    #:is-book? #t
+    #:author "Benjamin C. Pierce"
+    )
+  (bib-entry
+    #:key "Parsack docs"
+    #:title "Parsack Documentation"
+    #:is-book? #f
+    #:author "Stephen Chang"
+    #:url "http://docs.racket-lang.org/parsack/index.html"
     )
   )

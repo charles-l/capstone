@@ -27,34 +27,41 @@ First we'll include the necessary libraries
  br-parser-tools/yacc
  br-parser-tools/lex
  (prefix-in : br-parser-tools/lex-sre))
+(require "c-lexer.scrbl")
 ]
 
 Next we'll take a look at an extremely simple parser, one that simply parses
 digits.
 
-@chunk[<num-parser>
+@(define ev (make-code-eval #:lang "racket" #:allow-for-require `(,(string->path "c-lexer.scrbl"))))
+@(ev '(require br-parser-tools/yacc))
+@(ev '(require br-parser-tools/lex))
+@(ev '(require "c-lexer.scrbl"))
+@code-examples[#:lang "racket" #:context #'here #:eval ev]{
     (define num-parser
      (parser
+      (error
+       (lambda (tok-ok? tok-name tok-value)
+        (error "parsing failed" tok-name tok-value)))
+      (start number)
       (tokens keyword-tokens value-tokens)
       (end EOF)
       (grammar
        (number ((INT) $1)
-        ((DOUBLE) $1)))))]
+        ((DOUBLE) $1)))))}
 
 This is a fully functioning parser! It doesn't parse much, and it only
 constructs a tree of one node, but it will refuse to parse an invalid "program,"
-so it meets the formal definition for a parser.
+so it meets the definition of a parser.
 
 An example to demonstrate what it can do:
 
-@code-examples[#:lang "at-exp racket" #:context #'here]|{
-    (load "c-parser.scrbl")
-
+@code-examples[#:lang "at-exp racket" #:context #'here #:eval ev]|{
     (define test-input (open-input-string "2"))
-    (num-parser test-input)
+    (num-parser (lambda () (c-lexer test-input)))
 
     (define test-input (open-input-string "a string which will make it fail"))
-    (num-parser test-input)
+    (num-parser (lambda () (c-lexer test-input)))
 }|
 
 A @tt{number} can be an @tt{INT} token or a @tt{DOUBLE} token. Since we have
@@ -77,7 +84,8 @@ a bit clearer):
  (left - +)
  (left * /)) ]
 
-@chunk[<parser>
+@chunk[<*>
+<includes>
 (define c-parser
  (parser
   (tokens keyword-tokens value-tokens)

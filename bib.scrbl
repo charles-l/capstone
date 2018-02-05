@@ -1,0 +1,23 @@
+#lang scribble/book
+@(require scribble/manual)
+@(bibliography
+  (bib-entry
+    #:key "Tromp"
+    #:title "Binary Lambda Calculus and Combinatory Logic"
+    #:is-book? #f
+    #:author "John Tromp"
+    #:url "https://tromp.github.io/cl/LC.pdf")
+  (bib-entry
+    #:key "Leijen"
+    #:title "Binary Lambda Calculus and Combinatory Logic"
+    #:is-book? #f
+    #:author "Daan Leijen and Erik Meijer"
+    #:url "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf")
+
+  (bib-entry
+    #:key "Pierce"
+    #:title "Types and Programming Languages"
+    #:is-book? #t
+    #:author "Benjamin C. Pierce"
+    )
+  )

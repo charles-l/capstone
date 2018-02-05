@@ -214,7 +214,7 @@ of more tokens than any most other rules.
 
 @chunk[<if-stmt>
      ; if statement
-     ((IF LPAREN expr RPAREN LSQUARE stmt-list RSQUARE maybe-else)
+     ((IF LPAREN expr RPAREN LBRACE stmt-list RBRACE maybe-else)
       (append (list 'if expr stmt-list) maybe-else))]
 
 @tt{if} statements are odd from the perspective that they @italic{might} have an
@@ -222,7 +222,7 @@ else statement, which is why the rule to parse them is called "maybe-else."
 
 @chunk[<maybe-else>
     (maybe-else
-     ((else LSQUARE stmt-list RSQUARE) (list 'else $3))
+     ((else LBRACE stmt-list RBRACE) (list 'else $3))
      (() '()))]
 
 The @tt{maybe-else} rule will return an empty list if no else statement is

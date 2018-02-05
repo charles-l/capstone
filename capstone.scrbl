@@ -470,3 +470,6 @@ and constructs a parse tree.
 @subsection{Optimization passes}
 
 @subsection{Code generation}
+
+@(include-section "bib.scrbl")
+

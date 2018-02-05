@@ -19,24 +19,25 @@
     #:title "Structure and Interpretation of Computer Programs"
     #:is-book? #t
     #:author "Harold Abelson, Jerry Sussman and Julia Sussman")
-
   (bib-entry
     #:key "Pierce"
     #:title "Types and Programming Languages"
     #:is-book? #t
-    #:author "Benjamin C. Pierce"
-    )
+    #:author "Benjamin C. Pierce")
   (bib-entry
     #:key "Pierce"
     #:title "Types and Programming Languages"
     #:is-book? #t
-    #:author "Benjamin C. Pierce"
-    )
+    #:author "Benjamin C. Pierce")
   (bib-entry
     #:key "Parsack docs"
     #:title "Parsack Documentation"
     #:is-book? #f
     #:author "Stephen Chang"
-    #:url "http://docs.racket-lang.org/parsack/index.html"
-    )
+    #:url "http://docs.racket-lang.org/parsack/index.html")
+  (bib-entry
+      #:key "McCarthy Lisp"
+      #:title "A Micro-manual for Lisp - Not the Whole Truth"
+      #:is-book? #f
+      #:author "John McCarthy")
   )

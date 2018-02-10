@@ -25,11 +25,6 @@
     #:is-book? #t
     #:author "Benjamin C. Pierce")
   (bib-entry
-    #:key "Pierce"
-    #:title "Types and Programming Languages"
-    #:is-book? #t
-    #:author "Benjamin C. Pierce")
-  (bib-entry
     #:key "Parsack docs"
     #:title "Parsack Documentation"
     #:is-book? #f

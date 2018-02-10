@@ -5,6 +5,7 @@
 @(require scriblib/footnote)
 @(require scriblib/figure)
 @(require "util.rkt")
+@(require plot/pict)
 
 @title{Programming Language Implementation}
 @author{Charles Saternos}
@@ -140,6 +141,29 @@ pipeline, functional programming is an important paradigm to understand.
 
 @subsection{Static vs dynamic typing}
 
+@figure[
+"Code continuum"
+"Continuum of dynamic/static, weak/strong type systems"
+@(parameterize ([plot-width    400]
+            [plot-height   230]
+            [plot-font-face "Times New Roman"]
+            [plot-x-label  "Weak ↔ Strong"]
+            [plot-y-label  "Dynamic ↔ Static"])
+            (define xs (build-list 20 (λ _ (random))))
+            (define ys (build-list 20 (λ _ (random))))
+            (plot (list
+                   (point-label (vector -1 0.5) "C")
+                   (point-label (vector -0.5 0.7) "C++")
+                   (point-label (vector 0.7 -1) "Python")
+                   (point-label (vector -0.8 -1) "JavaScript")
+                   (point-label (vector 1 1) "SML"))
+                #:x-min -1.1
+                #:x-max 1.3
+                #:y-min -1.1
+                #:y-max 1.1))
+]
+
+
 Choosing between static and dynamic typing is a decision of whether you value safety or
 flexibility more. With dynamic type systems, variables just point at values that
 track type information. This means that variables can be reassigned to different
@@ -189,8 +213,6 @@ pre-computing the information at compile time. Static typing tends to result in
 faster code at execution time.
 
 @subsection{Strong vs weak typing}
-
-TODO: do the strong/weak, static/dynamic continuum drawing
 
 The other axis that must be considered is strong vs weak types. Weak typing is
 more "forgiving" in the sense that the language will attempt to cast the value
@@ -332,9 +354,112 @@ be using it in conjunction with simple pattern matching to parse our languages.
 
 @subsection{Graph walking}
 
+Graph walking interpreters are straightforward to implement, since once the
+source has been parsed into a parse tree and a few minor transormatinos have
+happened, the interpreter executes the graph directly. Since the source closely
+represents the runtime structure of the code, runtime errors are easier to catch
+and debug. Finally, metaprogramming and reflection are simpler since no extra
+metadata has to be stored to ensure the runtime environment has access to the
+information it needs.
+
+The downside of graph walking interpreters is that they're very slow. Traversing
+a graph generally entails following pointers from node to node, which is far
+slower to execute on modern CPU's than sets of (mostly) contigious instructions.
+Most programming language implementations for intpreteted languages start out as
+graph walking interpreters, since they're simpler to implement, before
+eventually implementing a virtual machine (VM) to improve performance.
+
+Essentially, we've already implemented a graph walking interpeter with the
+Lisp implementation on the last page. Lisp code is already a tree once
+@tt{(read)} in, and we simply traverse the tree to execute our program.
+
 @subsection{Virtual Machine}
 
+So you've got a graph intepreter for a language and now you want to speed it up.
+The next step is to design a virtual machine (VM) for your language that is
+similar to real hardware but close enough to the semantics of the language that
+it's not hard to translate beetween source code and VM bytecode.
+
+@graphviz{
+    digraph G {
+        rankdir = LR;
+        node [shape = box];
+        subgraph cluster_0 {
+            label = "VM";
+            color = black;
+            bytecode [label = "Interpret bytecode"];
+            bytecode -> bytecode;
+        }
+        "Parse source" -> "Compile to bytecode" -> bytecode;
+    }
+}
+
+While this strategy requires more processing to initially convert the source to
+bytecode, it can speed up interpretation tremendously. To mitigate this issue,
+some languages require a separate compile step to generate the bytecode. This
+bytecode file is then directly interpreted by the virtual machine
+implementation. An example of this is Java, which requires a compile step with
+@tt{javac} (the Java compiler) to generate a @tt{.java} file which can then be
+run by the JVM implementation installed on the machine. Even languages like
+Python will implicitely generate @tt{.pyc} (python bytecode) files for libraries
+to speed up imports.
+
+Some languages like Ruby and Lua don't bother with caching the bytecode and
+re-parse the file every time it is loaded because performance isn't a focus, or
+because the language is meant for embedded purposes (with small source files
+that are fast to parse).
+
+It's important to realize that this compilation step is happening. The
+term "interpreter" can be misleading when most language "interpreters" are
+actually bytecode interpreters that require a compilation step to the VM
+bytecode. While the bytecode interpreter is a proper interpreter (usually),
+modern interpreters are more often naive compilers than true graph-walking
+interpreters.
+
 @subsubsection{Stack based}
+
+Probably the simplest virtual machine model is a stack-based machine. This
+design of virtual machine has no registers, instead relying on pushing and
+popping from the stack, and operating on the top elements in the stack
+to perform computations.
+
+A simple stackbased bytecode might look like:
+
+@ttt{
+push 3
+push 7
+add
+push 2
+div
+}
+
+Which equates to the operations,
+
+@graphviz{
+    digraph G {
+        nodesep=.05;
+        rankdir=LR;
+        node [shape=record,width=.4,height=.1];
+
+        node00 [label = "",shape=none];
+        node0 [label = "3 | |  |  |  |  |  | ",height=2.0];
+        node1 [label = "7 |3 |  |  |  |  |  | ",height=2.0];
+        node2 [label = "10 | |  |  |  |  |  | ",height=2.0];
+        node3 [label = "2 |10 |  |  |  |  |  | ",height=2.0];
+        node4 [label = "5 | |  |  |  |  |  | ",height=2.0];
+
+        node00 -> node0 [label = "push 3"];
+        node0 -> node1 [label = "push 7"];
+        node1 -> node2 [label = "3 + 7"];
+        node2 -> node3 [label = "push 2"];
+        node3 -> node4 [label = "10 / 2"];
+    }
+}
+
+Each after each operation or function "returns", it places the result on the top
+of the stack, so the next operation can access it. Stack machines are popular
+because the simple design is appealing. Issues related to register allocation
+are gone because of design at a @italic{slight} cost of performance.
 
 @subsubsection{Register based}
 

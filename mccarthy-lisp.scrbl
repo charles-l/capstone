@@ -16,7 +16,14 @@ However, the original Lisp interpreter written in Lisp is only a single page
     (define (assoc e a)
      (cond
       ((null? a) '())
-      ((eq? e (caar a)) (car a))))
+      ((eq? e (caar a)) (car a))
+      (else (assoc e (cdr a)))))
+    (define (pairup u v)
+     (cond
+      ((null? u) '())
+      (else
+       (cons (cons (car u) (car v))
+        (pairup (cdr u) (cdr v))))))
     (define (lisp-eval e a)
      (cond ((atom? e)
             (cond
@@ -46,62 +53,53 @@ However, the original Lisp interpreter written in Lisp is only a single page
         ((eq? (car e) '-)    (- (lisp-eval (cadr e) a)
           (lisp-eval (caddr e) a)))
         ((eq? (car e) 'cond)
-         (letrec ((evcond
-                   (lambda (u a)
-                    (cond ((lisp-eval (caar u) a)
-                           (lisp-eval (cadar u) a))
-                     (else (evcond (cdr u) a))))))
+         (letrec ((evcond (lambda (u a)
+                           (cond ((lisp-eval (caar u) a)
+                                  (lisp-eval (cadar u) a))
+                            (else (evcond (cdr u) a))))))
           (evcond (cdr e) a)))
-        (else (lisp-eval (cons (cdr (assoc (car e) a)) a)))))
+        (else (lisp-eval (cons (cdr (assoc (car e) a)) (cdr e)) a))))
         ((eq? (caar e) 'lambda)
          (lisp-eval (caddar e)
           (letrec ((ffappend (lambda (u v)
-                              (cond ((null u) v)
+                              (cond ((null? u) v)
                                (else (cons (car u)
                                       (ffappend (cdr u) v))))))
-                   (pairup (lambda (u v)
-                            (cond
-                             ((null? u) '())
-                             (else
-                             (cons (cons (car u) (car v))
-                                    (pairup (cdr u) (cdr v)))))))
                    (evlis (lambda (u a)
                            (cond ((null? u) '())
                             (else (cons (lisp-eval (car u) a)
                                    (evlis (cdr u) a)))))))
-           (ffappend
-            (pairup
-             (cadar e)
-             (evlis (cdr e) a))
-            a))))
+           (ffappend (pairup (cadar e) (evlis (cdr e) a)) a))))
         ((eq? (caar e) 'label)
          (lisp-eval (cons (caddar e) (cdr e))
           (cons (cons (cadar e) (car e)) a)))))
 
           (lisp-eval '(car '(a)) '())
-          (lisp-eval '(atom? (cdr '(a))) '())
-          (lisp-eval '(null? ()) '())
-          (lisp-eval '(null? '()) '())
-          (lisp-eval '(eq? 1 1) '())
-          (lisp-eval '1 '())
-          (lisp-eval '(cond
-                       ((eq? 1 1) 1)
-                       (t (* 1 (- 1 1))))
-           '())
-          (lisp-eval '(lambda (n)
-                       (cond
-                        ((eq? n 1) 1)
-                        (t (* n (- n 1)))))
-           '())
           (lisp-eval '((lambda (n)
                         (cond
                          ((eq? n 1) 1)
                          (t (* n (- n 1))))) 7)
           '())
-          (lisp-eval '((label fib (lambda (n)
+          (lisp-eval '((label fac (lambda (n)
                                    (cond
                                     ((eq? n 1) 1)
-                                    (t (* n (fib (- n 1))))))) 7)
+                                    (t (* n (fac (- n 1))))))) 7)
           '())
 }
 
+Granted, this code could possibly be refactored into some functions, and a few
+helper functions could make it easier to read. However, the @italic{entire
+implementation for a simple Lisp is one page}. This is one of the powerful
+features of Lisp. It's a language with a small kernel that's easy to implement.
+Once the kernel is impelmented, every feature expected in a high-level language
+is easy to add - Lisp isn't limited at all by its simple design. The design just
+makes it easier to reason about.
+
+Interpreters are very easy to build in Lisp, and Racket makes it easier with
+the ability to define the language you're using in the top of the file.
+Different "languages" are still compatable with each other (since they all have
+Racket interpreters in the end). We can mix typed Racket with standard Racket
+and lazy Racket in a project and all the code works together.
+
+We'll briefly look at a few interpreter implementation strategies and the
+various advantages and disadvantages associated with each.

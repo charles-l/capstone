@@ -35,4 +35,9 @@
       #:title "A Micro-manual for Lisp - Not the Whole Truth"
       #:is-book? #f
       #:author "John McCarthy")
+  (bib-entry
+      #:key "Yunhe"
+      #:title "Virtual Machine Showdown: Stack Versus Registers"
+      #:is-book? #f
+      #:author "Yunhe Shi, David Gregg, Andrew Beatty and M. Anton Ertl")
   )

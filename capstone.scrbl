@@ -2,6 +2,7 @@
 
 @(require scribble-code-examples)
 @(require scribble/lp-include)
+@(require scribble/manual)
 @(require scriblib/footnote)
 @(require scriblib/figure)
 @(require "util.rkt")
@@ -343,19 +344,24 @@ and disadvantages. The methods covered in this paper are:
 
 No book on language implementation is complete without a brief look into parsing
 techniques. However, from here on out, we will be using s-expressions to
-represent our language since it is a convenient format to use to represtent ASTs
+represent our language since it is a convenient format to use to represent ASTs
 (especially in Racket). Writing an s-expression parser is trivial, but since
 Racket has a built in @tt{read} function (which parses our syntax for us), we'll
 be using it in conjunction with simple pattern matching to parse our languages.
 
 @section{Interpreters}
 
+We will begin with a brief look at interpreters. Simple interpreters are easier
+to implement than simpler compilers, so they're generally a first step for
+programming language implementations. However, not every interpreter is easier
+to understand and implement than every compiler, but
+
 @(lp-include "mccarthy-lisp.scrbl")
 
 @subsection{Graph walking}
 
 Graph walking interpreters are straightforward to implement, since once the
-source has been parsed into a parse tree and a few minor transormatinos have
+source has been parsed into a parse tree and a few minor transformations have
 happened, the interpreter executes the graph directly. Since the source closely
 represents the runtime structure of the code, runtime errors are easier to catch
 and debug. Finally, metaprogramming and reflection are simpler since no extra
@@ -364,21 +370,21 @@ information it needs.
 
 The downside of graph walking interpreters is that they're very slow. Traversing
 a graph generally entails following pointers from node to node, which is far
-slower to execute on modern CPU's than sets of (mostly) contigious instructions.
-Most programming language implementations for intpreteted languages start out as
+slower to execute on modern CPU's than sets of (mostly) contiguous instructions.
+Most programming language implementations for interpreted languages start out as
 graph walking interpreters, since they're simpler to implement, before
 eventually implementing a virtual machine (VM) to improve performance.
 
-Essentially, we've already implemented a graph walking interpeter with the
+Essentially, we've already implemented a graph walking interpreter with the
 Lisp implementation on the last page. Lisp code is already a tree once
 @tt{(read)} in, and we simply traverse the tree to execute our program.
 
 @subsection{Virtual Machine}
 
-So you've got a graph intepreter for a language and now you want to speed it up.
+So you've got a graph interpreter for a language and now you want to speed it up.
 The next step is to design a virtual machine (VM) for your language that is
 similar to real hardware but close enough to the semantics of the language that
-it's not hard to translate beetween source code and VM bytecode.
+it's not hard to translate between source code and VM bytecode.
 
 @graphviz{
     digraph G {
@@ -423,7 +429,7 @@ design of virtual machine has no registers, instead relying on pushing and
 popping from the stack, and operating on the top elements in the stack
 to perform computations.
 
-A simple stackbased bytecode might look like:
+A simple stack-based bytecode might look like:
 
 @ttt{
 push 3
@@ -459,13 +465,58 @@ Which equates to the operations,
 Each after each operation or function "returns", it places the result on the top
 of the stack, so the next operation can access it. Stack machines are popular
 because the simple design is appealing. Issues related to register allocation
-are gone because of design at a @italic{slight} cost of performance.
+are gone because of design at performance loss and larger
+executables.
 
 @subsubsection{Register based}
 
+Register based machines require fewer significantly fewer instruction for programs,
+and are generally faster than stack-based machines @cite{Yunhe} (due to the fact
+that a register-based vm reflects the architecture of a real machine more
+than a stack-based vm does).
+
 @subsubsection{JIT compilation}
 
+The disadvantage of a naive stack or register-based interpreter written in C is
+interpretation in a virtual machine is inherently slower than native code.
+Machine code written specifically for the target CPU's architecture will run
+faster the machine code that is interpreting some other bytecode. To mitigate
+the problem, fast interpreters will compile portions of the interpreted bytecode
+directly to machine code at runtime.
+
+This technique (known as just-in-time compilation), is what makes so many modern
+interpreters fast. LuaJit, the V8 JavaScript interpreter, the Java Virtual Machine,
+and PyPy (a JITted Python implementation) are some examples of popular
+JIT implementations.
+
+Since the code is compiled during runtime, the interpreters are very
+sophisticated and can be difficult to debug (since some of the code my be
+interpreter bytecode and some may be machine code). While simplicity is lost,
+JITs make certain optimizations possible that aren't otherwise.
+
+Tracing JITs, for instance, analyze the program as its interpreted using a
+simple bytecode interpreter. When it finds a "hot spot" (i.e. a
+sequence of instructions that are executed repeatedly), it compiles those
+bytecode instructions to native instructions so they execute faster.
+
+If a module was dynamically loaded at runtime, and a certain function were
+frequently called in the bytecode, the tracing JIT might actually
+inline@note{Inlining is the process of copying the code inside a function to
+where the function is called, so there's less overhead from a function call and
+certain other optimizations are possible} the instructions and compile them to
+machine code, which is something a conventional ahead-of-time (AOT) compiler
+simply couldn't do.
+
+The dynamism of JITs is quite fascinating, and its interesting how the
+interpreter can "learn" to make code faster over time, but JIT's are a
+sophisticated and advanced subject, requiring a book of their own, so this
+section will just be concluded by a brief example.
+
+TODO: example
+
 @section{Compilers}
+
+This final portion of the book will focus on
 
 @subsection{Optimization passes}
 

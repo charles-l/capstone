@@ -15,6 +15,165 @@
 
 @section{Background}
 
+@subsection{Racket}
+
+We'll be using the Racket programming language for the implementations in this
+book. Racket is a descendent of Lisp, which was the second high-level language
+ever created. Despite its age, Lisp dialects are still in use today (particularly in
+the programming language theory community), and Racket is designed to be a
+programming language test bed.
+
+Lisp's syntax is extremely minimal. It's prefix notation, where parentheses
+mean its a function call.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (println "Hello world")
+}|
+
+Lisp doesn't (by default) have any form of infix notation. So standard numeric
+operations are written in prefix form. For example, 3 * (4 + 2) would be written
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (* 3 (+ 4 2))
+}|
+
+While this format may seem awkward at first, it has the advantage of very normal
+syntax that makes parsing and macros possible (which we'll see soon).
+
+Racket has standard data types (strings, numbers, characters):
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    "reeeee"
+    42
+    #\z
+}|
+
+And it also has a few others that are typically seen in other Lisps. Namely
+symbols, cons cells, lists, and vectors.
+
+Symbols are very similar to strings. The only difference is the string value is
+"interned" (i.e. inserted into an internal hash table), so lookups are fast.
+This means symbols are extremely cheap to compare, so they can be used for enums
+and the like.
+
+Symbols are created with a quote.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    'symbols-are-cooler-than-strings
+    (println 'just-a-symbol)
+}|
+
+Lisp's primary container structure is cons cell. A cons cell is a pair of two values.
+The first value is accessed with the @tt{car} function and the second value is
+accessed with the @tt{cdr} function.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (cons 'a 'b)
+    (cons 2 "cool")
+    (cons #\m #\e)
+
+    (car (cons 'a 'b))
+    (cdr (cons 'my-other-car-is 'a-cdr))
+}|
+
+Cons cells can hold other cons cells in them, which forms a linked list of
+values.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (cons 'a (cons 'little (cons 'dotted 'list)))
+}|
+
+Generally, rather than storing a value in the last cons cell, it will store the
+null list, @tt{'()}
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (cons 'a (cons 'proper (cons 'list '())))
+}|
+
+Since consing a bunch of conses together is tedious, the helper function,
+@tt{list} will create a linked-list of cons cells (terminated by the empty list).
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (list 'a 'b 'c)
+}|
+
+Variable assignment is important in most languages, and Racket has two ways of doing it.
+The first is using the @tt{define} keyword:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define my-awesome-list (list 'a 'b 'c))
+    (car my-awesome-list)
+    (cdr my-awesome-list)
+}|
+
+This is similar to other languages, and the variable only exists in the scope it
+was created in.
+
+The second (generally more idiomatic) way of defining variables is with a
+@tt{let} binding. With a @tt{let} binding the scope of the variable can be
+defined with a block.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (let ((x 2) (y 3))
+     (+ x y))
+}|
+
+The reason this second version is somewhat preferred is because the scope of a
+variable is made explicit, and @tt{let} bindings are better for seeing how a
+binding is shadowed.
+
+Racket encourages the use of unnamed functions@note{Generally called anonymous
+functions} with lambdas. A lambda can be defined with the lambda keyword
+followed by the arguments and body of the function. To call the function, wrap
+it in another set of parenthesis to apply it to the arguments you pass it.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (lambda (x y)
+      (+ x y))
+
+    ((lambda (x y)
+      (+ x y)) 2 4)
+}|
+
+Functions are first class values in Lisp, meaning they can be assigned as
+variables.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define f (lambda (a)
+                (+ a 2)))
+    (f 3)
+    (let ((blahify (lambda (n)
+                    (string-append n " blah!"))))
+        (blahify "its a"))
+}|
+
+TODO if statements, quoting
+
+Lisp heavily encourages recursion. Lisp can be defined without any looping
+mechanisms built into the language since recursion can be used in place of it.
+
+The elegance of cons cells can be made apparent when its possible to navigate a
+tree with nothing but @tt{car}, @tt{car} and @tt{lambda} and if statements.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define append
+     (lambda (a b)
+        (if (null? a)
+            b
+            (cons (car a) (append (cdr a) b)))))
+
+    (define flatten-list
+     (lambda (tree)
+      (if (null? tree)
+       '()
+       (if (list? (car tree))
+        (append (flatten-list (car tree)) (flatten-list (cdr tree)))
+        (cons (car tree) (flatten-list (cdr tree)))))))
+
+    (flatten-list '((a b) (c) (e f)))
+}|
+
+
 TODO: quick racket guide
 
 TODO: regular expressions
@@ -353,8 +512,10 @@ be using it in conjunction with simple pattern matching to parse our languages.
 
 We will begin with a brief look at interpreters. Simple interpreters are easier
 to implement than simpler compilers, so they're generally a first step for
-programming language implementations. However, not every interpreter is easier
-to understand and implement than every compiler, but
+programming language implementations. While there are some extermely sophisticated
+interpreters, in general, they tend to be simpler.
+
+We'll start with the simplest type of interpreter, a graph walking interpreter.
 
 @(lp-include "mccarthy-lisp.scrbl")
 
@@ -516,11 +677,42 @@ TODO: example
 
 @section{Compilers}
 
-This final portion of the book will focus on
+This final portion of the book will focus on compilers. Compilers convert the
+source language to a target language (generally assembly or VM bytecode). The
+process happens in a series of passes, starting with parsing, semantic
+analysis, and a series of optimization passes.
+
+The later passes in a compiler (called the backend) are where a compiler really
+diverges from an interpreter. Both an interpreter and a compiler may share a
+front-end (i.e. the parsing/semantic analysis passes), but after that point they
+diverge in what they do.
+
+Since compilers read and compile code once, they can do sophisticated and
+computationally expensive optimization passes that aren't usually available to
+interpreters for performance reasons. Fast compilers are important, but slower
+compilers are acceptable when the final binary has a faster execution time.
+
+An overview of the compiler pipeline we for our compiler implementation is as
+follow:
+
+@graphviz{
+    digraph {
+        node [shape = box];
+        "Source" -> "Parse tree" [label="Parse"];
+        "Parse tree" -> "Annotated parse tree" [label="Semantic analysis"];
+        "Annotated parse tree" -> "IR" [label="Optimization passes"];
+        "IR" -> "A-normal form";
+        "A-normal form" -> "Three address code";
+        "Three address code" -> "Target source" [label="Code generation"]
+    }
+}
 
 @subsection{Optimization passes}
 
 @subsection{Code generation}
+@subsubsection{Continuation passing style}
+@subsubsection{A-normal form}
+@subsubsection{Three address code}
 
 @(include-section "bib.scrbl")
 

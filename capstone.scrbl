@@ -7,6 +7,7 @@
 @(require scriblib/figure)
 @(require "util.rkt")
 @(require plot/pict)
+@(require scribble-math)
 
 @title{Programming Language Implementation}
 @author{Charles Saternos}
@@ -17,13 +18,29 @@
 
 @subsection{Racket}
 
+@graphviz{
+    digraph {
+        "Lisp" -> "Scheme";
+        "Scheme" -> "Racket";
+        "Lisp" -> "Common Lisp";
+        "Lisp" -> "Clojure";
+    }
+}
+
 We'll be using the Racket programming language for the implementations in this
 book. Racket is a descendent of Lisp, which was the second high-level language
 ever created. Despite its age, Lisp dialects are still in use today (particularly in
-the programming language theory community), and Racket is designed to be a
-programming language test bed.
+the programming language theory community). Racket is designed to be a
+programming language implementation test bed, and has many tools and libraries that
+will make the implementations in this book simpler than a similar program in C or Java.
 
-Lisp's syntax is extremely minimal. It's prefix notation, where parentheses
+Racket is an extremely simple language and is easy to understand in a few sittings and
+a bit of experimentation. You're encouraged to enter the simple programs throughout this
+book and fiddle with them yourself, but it is especially important for this chapter so
+you get a basic understand of how the language works.
+
+Lisp's@note{We'll be using Racket and Lisp interchangeably when talking about basic concepts that
+apply to most Lisps} syntax is extremely minimal. It's prefix notation, where parentheses
 mean its a function call.
 
 @code-examples[#:lang "racket" #:context #'here]|{
@@ -97,6 +114,28 @@ Since consing a bunch of conses together is tedious, the helper function,
     (list 'a 'b 'c)
 }|
 
+Furthermore, quoting each individual element can become an annoyance quickly, so there are
+some mechanisms for quickly creating lists of literal values. So the previous example is equivalent to,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    '(a b c)
+}|
+
+The quote symbol can be used to make the entire list and sublists literal values.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    '((a b c) d e f 1 2 3 "strings too!")
+    '(working with lists and symbols is quite nice)
+}|
+
+And if you want to quote most of the list, but insert a value besides a literal, you can
+use the quasiquote and unquote mechanisms.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    `(1 plus 2 is ,(+ 1 2))
+    `((+ 1 2) is ,(+ 1 2))
+}|
+
 Variable assignment is important in most languages, and Racket has two ways of doing it.
 The first is using the @tt{define} keyword:
 
@@ -147,7 +186,7 @@ variables.
         (blahify "its a"))
 }|
 
-TODO if statements, quoting
+TODO if statements
 
 Lisp heavily encourages recursion. Lisp can be defined without any looping
 mechanisms built into the language since recursion can be used in place of it.
@@ -173,8 +212,58 @@ tree with nothing but @tt{car}, @tt{car} and @tt{lambda} and if statements.
     (flatten-list '((a b) (c) (e f)))
 }|
 
+Of course, implementing every utility function would be a pain, so we will be using
+the libraries that come bundled with Racket, along with a few popular community packages.
 
-TODO: quick racket guide
+@subsubsection{Functional pattern @tt{match}ing}
+
+A common feature in functional languages is functional pattern matching. A significant
+portion of control flow operating on data structures is usually dedicated to just parsing it.
+Functional languages implement a matching system that allows you to bind values that are nested
+within a structure more easily.
+
+Consider an association list (a Lisp data structure pattern that is used when the speed of a hash
+table isn't necessary), which has the structure of a list of cons pairs.
+
+@(define ev (make-code-eval #:lang "racket"))
+@code-examples[#:lang "racket" #:context #'here #:eval ev]|{
+    (define tasty-food '((crunchy . peanut-butter)
+                         (pulpy . orange-juice)
+                         (whole-grain . bread)))
+}|
+
+If we wanted to write a search function, we could use a bunch of @tt{car}s and @tt{cdr}s.
+
+@code-examples[#:lang "racket" #:context #'here #:eval ev]|{
+    (define (search term alist)
+     (if (null? alist)
+      #f
+      (if (eq? (car (car alist)) term)
+       (cdr (car alist))
+       (search term (cdr alist)))))
+    (search 'whole-grain tasty-food)
+    (search 'pulpy tasty-food)
+    (search 'chocolate tasty-food)
+}|
+
+But wouldn't it be nicer if the code looked more like the data we were trying to navigate?
+
+@code-examples[#:lang "racket" #:context #'here #:eval ev]|{
+    (define (matchy-search term alist)
+        (match alist
+            ('() #f)
+            (`((,key . ,value) ,rest ...)
+             (if (eq? key term)
+               value
+               (matchy-search term rest)))))
+    (matchy-search 'whole-grain tasty-food)
+    (matchy-search 'caramel tasty-food)
+}|
+
+Functional pattern matching makes code easier to read since it cleanly breaks up the code into cases.
+Each case details specifically the structure of the data it is able to process. Code written with
+functional pattern matching is easier to validate (since you can quickly see each case that is handled),
+and is simpler to extend.
 
 TODO: regular expressions
 
@@ -453,6 +542,110 @@ OCaml).
 
 @subsection{Lambda Calculus}
 
+When discussing programming language theory, its useful to know the minimal requirements for
+a language that can compute anything. The common model presented is the Turing machine,
+which is a useful model because it maps closely to real hardware. A Turing machine consists
+of a finite state machine (basically a control flow graph), and a tape reader that can read and write
+to the tape, and shift it left and right. A CPU just executes a list of instructions that create
+a finite state machine, and memory is like a tape (that conveniently enough, doesn't need to be shifted
+left and write to access cells).
+
+The minimal requirements for computability can lead to some interesting results. For instance,
+HTML5 and CSS3 (without JavaScript), C++ templates, Magic: The Gathering (the card game),
+Minecraft, Excel formulas, and a plethora of other systems are accidentally Turing complete
+@note{That is to say, they fully implement a Turing machine}. This means that @italic{any} computable
+problem (i.e. any problem that can be solved with a real computer), can be solved with any of these
+Turing complete systems. You could calculate the Fibonacci sequence with Magic the Gathering, or compute
+a frame of Doom with an Excel spreadsheet. You could emulate an NES game with just C++ templates,
+and do matrix multiplication with CSS3 rules.
+
+Obviously, these examples are a little silly. These systems are not meant for computation, so they're
+no optimized for it, and they don't necessarily store data in a format that is convenient to use.
+The point is that it is possible to be Turing complete by meeting a few simple requirements.
+
+The Turing machine model is essential for building simple, real-world computers. However, it isn't
+good for representing functional programming languages since they don't focus on memory allocation
+and use functions for control flow rather than finite automata. Instead of Turing machines,
+we will be using Lambda Calculus (a model invented by Alonzo Church in the 1930s), to
+reason about computation@cite{Jung}. Conveniently enough, Lisp was based on Lambda calculus, which
+makes some examples possible to write as Lisp programs.
+
+In Lambda-calculus, functions definitions are represented with the λ and function applications
+are written with prefix notation (like Lisp). For example, if we defined the function:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+(lambda (i)
+  (+ 32 i))
+}|
+
+Would be written as
+
+@$${\lambda i \; . \; + \; 32 \; i}
+
+Sometimes, parentheses will be included to make the end of an expression clear.
+
+@$${(\lambda i \; . \; + \; 32 \; i) 2}
+
+To make our notation easier to understand, we'll allow function definitions through the
+@tt{=} symbol. Though it is possible to represent recursion with only anonymous functions
+through the Y-combinator, it is clearer to allow function definitions.
+
+Nested function calls are prevalent in this type of programming, which can result in cluttered
+notation.
+
+@(define ev2 (make-code-eval #:lang "racket"))
+@(ev2 '(define f identity))
+@(ev2 '(define g identity))
+@(ev2 '(define h identity))
+@(ev2 '(define i identity))
+@(ev2 '(define j identity))
+
+@code-examples[#:lang "racket" #:eval ev2 #:context #'here]|{
+    (f (g (h (i (j 'a-value)))))
+}|
+
+To simplify the notation for this type of nesting, we'll use the compose operator to
+create a new function that applies each of the functions from left to right. So the above
+code is equivalent to the following:
+
+@code-examples[#:lang "racket" #:eval ev2 #:context #'here]|{
+    ((compose f g h i j) 'a-value)
+}|
+
+The compose operator actually comes from math, and is notated like so:
+
+@$${f \circ g \circ h \circ i \circ j}
+
+Programming purely through function composition is called @italic{point-free programming}, and has
+the advantage of having fewer explicitly named variables which can make code easier to read and understand
+(since naming variables is a difficult task).
+
+In our previous examples, we've used operators (such as @${+}) and numbers in our functions,
+but lambda calculus doesn't necessarily need numbers, standard mathematical operators, or lists
+since functions can be used to encode all that information.
+
+Since functions are just values, we can return a function rather than evaluating it immediately.
+
+@$${(\lambda i \; . \; \lambda y \; . \; y)}
+
+Using this technique, we can represent numbers as a series of function compositions. This technique
+is called Church encoding @cite{Tromp}, and can be used to represent numbers and lists, and we can build
+functions that operate on these encoded values.
+
+So to represent the number 3, we just return a new function that composes 3 times.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define three (lambda (f) (lambda (x) (f (f (f x))))))
+}|
+
+So to define the nth natural number, we compose n times.
+
+@$${\lambda f \; . \; \lambda x \; . \; f ( f ( f ( \ldots f ( x ) ) ) )}
+
+The @tt{add1} function just composes a new function to wrap the number with another @${f}:
+
+@$${\lambda n \; . \; \lambda f \; . \; \lambda x \; . \; f (n f x)}
+
 @section{Parsing and Semantic Analysis}
 
 Like spoken languages, programming languages have a grammar. However human
@@ -708,6 +901,36 @@ follow:
 }
 
 @subsection{Optimization passes}
+
+Most of the passes in a real-world compiler's backend are dedicated to code
+optimization. The term code optimization is a bit misleading, since it technically
+doesn't result in optimal code, just code that may be more performant because of
+transformations based on heuristics. However, these heuristics can be valuable for
+improving the runtime performance of the binaries produced by the compiler.
+
+@subsubsection{Inlining}
+
+The most fundamental optimization is inlining, which is the process of
+copying the code for a function directly to the call site. This lowers the overhead
+for a function call, and makes other optimizations possible since the function
+is no longer a black box.
+
+@graphviz{
+    digraph {
+        subgraph cluster_0 {
+            label = "before";
+            node [shape = box];
+            g [label = "(let ((a 2) (b 3))\l (my-super-add a b))"];
+            h [label = "(define (my-super-add m n)\l (+ m n))"];
+            g -> h;
+        }
+        subgraph cluster_1 {
+            label = "after";
+            node [shape = box];
+            i [label = "(let ((a 2) (b 3))\l (+ a b))"];
+        }
+    }
+}
 
 @subsection{Code generation}
 @subsubsection{Continuation passing style}

@@ -36,6 +36,12 @@
       #:is-book? #f
       #:author "John McCarthy")
   (bib-entry
+        #:key "Jung"
+        #:title "A short introduction to the Lambda Calculus"
+        #:is-book? #f
+        #:author "Achim Jung")
+
+  (bib-entry
       #:key "Yunhe"
       #:title "Virtual Machine Showdown: Stack Versus Registers"
       #:is-book? #f

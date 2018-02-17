@@ -50,65 +50,127 @@ make pattern matching simpler.
 We'll now define a lexer for a subset of C's grammar which is implemented
 using a Racket package called @tt{parser-tools}.
 
+First, we'll define all possible tokens that our lexer can generate from the
+source code. We'll call the first few @tt{value-tokens} since they contain literal
+values from the original source code.
+
+@chunk[<value-tokens>
+    (define-tokens value-tokens (INT DOUBLE CHAR STRING ID))
+]
+
+Then we'll define the tokens that don't need to contain any literal values from
+the source code, since the name of the token reflects what the original value was.
+
+@chunk[<keyword-tokens>
+(define-empty-tokens keyword-tokens
+ (if else for * / + - < > = += -= return
+  IF
+  COMMA POUND SEMI LBRACE RBRACE LPAREN RPAREN LSQUARE RSQUARE EOF))
+]
+
+Now we define the matching rules for the lexer so it converts literal
+strings in the original source into the correct token.
+
+@chunk[<lexer>
+        (define c-lexer
+          (lexer
+            ((eof) 'EOF)
+            <skip-whitespace>
+            <match-keyword-tokens>
+            <syntax-symbols>
+            <integer>
+            <double>
+            <id>
+            <char>
+            <string>))]
+
+
+
+Since whitespace is semantically insignificant in C, we can ignore it. We'll
+write a rule that skips whitespace by recursively calling the lexer on the
+next token in the input.
+
+@chunk[<skip-whitespace>
+        ((:or #\tab #\space #\newline) (c-lexer input-port))
+        ]
+
+For the rules where the stringified token equals the name of the token itself,
+we can just convert the string into a symbol and return it as the token. In this
+parser, the lexer function automatically creates a variable called @tt{lexeme} which
+stores the value of the string that was just read in.
+
+@chunk[<match-keyword-tokens>
+    ((:or "else" "for" "*" "/" "+" "-" "<" ">" "=" "+=" "-=" "return")
+     (string->symbol lexeme)) ]
+
+Then we have the keyword tokens that don't match since they have syntactic meaning
+in Racket (so its clearer not to use the symbol itself to reference them).
+
+@chunk[<syntax-symbols>
+    ("{" 'LBRACE)
+    ("}" 'RBRACE)
+    ("[" 'LSQUARE)
+    ("]" 'RSQUARE)
+    ("(" 'LPAREN)
+    (")" 'RPAREN)
+    (";" 'SEMI)
+    ("#" 'POUND)
+    ("," 'COMMA)]
+
+Then we'll parse integer numbers with a slightly more sophisticated rule. The @tt{:+} function means
+to parse one or more of whatever arguments it has. The @tt{:/} function will match any character
+in the range of ASCII characters it is passed. In our case, we want to match one or more ASCII
+characters that are between the value '0' and '9'.
+
+@chunk[<integer>
+    ((:+ (:/ "0" "9"))
+     (token-INT (string->number lexeme)))]
+
+Doubles are just two integers separated by a decimal point, so we'll use the @tt{:seq} function to
+parse a sequence of patterns.
+
+@chunk[<double>
+        ((:seq (:+ (:/ "0" "9")) #\. (:+ (:/ "0" "9")))
+         (token-DOUBLE (string->number lexeme))) ]
+
+Sometimes in our grammar, we expect a word like a type name, variable name or function name, but don't
+know exactly what that function will be. What we do know is that a valid identifier starts with a character
+and has either characters or numbers in the rest of the name (they can be capitalized, and we can also have underscores
+in a real C grammar, but we'll simplify it for now).
+
+@chunk[<id>
+    ((:seq (:/ "a" "z") (:+ (:or (:/ "a" "z") (:/ "0" "9"))))
+     (token-ID lexeme))]
+
+Characters are notated by a quote followed by any character and another quote.
+@chunk[<char>
+        ((:seq "'" any-char "'") (token-CHAR (string-ref lexeme 1)))
+        ]
+
+And finally, strings will be denoted by a double quote, followed by zero or more characters that
+@italic{aren't} a double quote.
+
+We'll use the @tt{:*} function to match zero or more characters, and we'll use the char-complement
+function to match any character except the double quote.
+
+@chunk[<string>
+        ((:seq #\" (:* (char-complement #\")) #\")
+         (token-STRING
+           (substring lexeme 1 (- (string-length lexeme) 2))))
+        ]
+
+Putting it all together, we get the final module file:
+
 @chunk[<*>
     (require br-parser-tools/lex
      (prefix-in : br-parser-tools/lex-sre))
 
     (provide value-tokens keyword-tokens c-lexer)
 
-    ; we'll call these value-tokens, since they reference a literal
-    ; value in the source code
-    (define-tokens value-tokens (INT DOUBLE CHAR STRING ID))
+    <value-tokens>
+    <keyword-tokens>
+    <lexer>
 
-    ; these tokens don't need to hold a value since they're keywords, parts of
-    ; syntax, or operators so the name defines what value they originally held
-    (define-empty-tokens keyword-tokens
-        (if else for * / + - < > = += -= return
-         IF
-         COMMA POUND SEMI LBRACE RBRACE LPAREN RPAREN LSQUARE RSQUARE EOF))
-
-    (define c-lexer
-      (lexer
-        ((eof) 'EOF)
-
-        ; this rule allows us to skip tabs, spaces, and newlines
-        ; by recursively calling c-lexer on the rest of the input
-        ((:or #\tab #\space #\newline) (c-lexer input-port))
-
-        ; lets us match keywords that we then convert into their symbolic
-        ; name so they're recognized as tokens
-        ((:or "else" "for" "*" "/" "+" "-" "<" ">" "=" "+=" "-=" "return")
-         ; lexeme is an implicit variable that is created created
-         ; for whatever the rule matched
-         (string->symbol lexeme))
-
-        ("{" 'LBRACE)
-        ("}" 'RBRACE)
-        ("[" 'LSQUARE)
-        ("]" 'RSQUARE)
-        ("(" 'LPAREN)
-        (")" 'RPAREN)
-        (";" 'SEMI)
-        ("#" 'POUND)
-        ("," 'COMMA)
-
-        ; equivalent to the regexp [0-9]+
-        ((:+ (:/ "0" "9"))
-         (token-INT (string->number lexeme)))
-
-        ; equivalent to the regexp [0-9]+\.[0-9]+
-        ((:seq (:+ (:/ "0" "9")) #\. (:+ (:/ "0" "9")))
-         (token-DOUBLE (string->number lexeme)))
-
-        ((:seq (:+ (:/ "a" "z") (:or (:/ "a" "z") (:/ "0" "9"))))
-         (token-ID lexeme))
-
-        ((:seq "'" any-char "'") (token-CHAR (string-ref lexeme 1)))
-
-        ; equivalent to the regexp ["][^"]*["]
-        ((:seq #\" (:* (char-complement #\")) #\")
-         (token-STRING
-           (substring lexeme 1 (- (string-length lexeme) 2))))))
 ]
 
 @(define ev (make-code-eval #:lang "racket" #:allow-for-require `(,(string->path "c-lexer.scrbl"))))

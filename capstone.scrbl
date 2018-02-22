@@ -186,7 +186,7 @@ variables.
         (blahify "its a"))
 }|
 
-TODO if statements
+TODO if statements, macros
 
 Lisp heavily encourages recursion. Lisp can be defined without any looping
 mechanisms built into the language since recursion can be used in place of it.
@@ -893,12 +893,18 @@ follow:
         node [shape = box];
         "Source" -> "Parse tree" [label="Parse"];
         "Parse tree" -> "Annotated parse tree" [label="Semantic analysis"];
-        "Annotated parse tree" -> "IR" [label="Optimization passes"];
-        "IR" -> "A-normal form";
-        "A-normal form" -> "Three address code";
-        "Three address code" -> "Target source" [label="Code generation"]
+        "Annotated parse tree" -> "IR";
+        "IR" -> "Optimized IR" [label="Optimization passes"]
+        "Optimized IR" -> "A-normal form";
+        "A-normal form" -> "Target source" [label="Code generation"]
     }
 }
+
+
+@subsection{The IR}
+
+@subsubsection{Continuation passing style}
+@subsubsection{A-normal form}
 
 @subsection{Optimization passes}
 
@@ -932,10 +938,170 @@ is no longer a black box.
     }
 }
 
+@subsubsection{Partial evaluation}
+
+If we look at the following code, we can hand optimize a few things.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define +widget-price+ 3)
+    (define (widget-price-with-tax)
+      (+ (* +widget-price+ 0.06) +widget-price+))
+
+    (widget-price-with-tax)
+}|
+
+Given @tt{+widget-price+} stays constant throughout the program, calculating the
+@tt{(widget-price-with-tax)} will be the same number in every case. Rather than recalculating
+it ever time
+
+@subsubsection{Deforestation}
+
+Deforestation (also known as fusion)
+
+@subsubsection{Various other optimization techniques}
+
+There are a plethora of other optimization techniques utilized
+by standard imperative compilers. Since they tend to be smaller, and less
+specific to functional languages, we'll only briefly touch on them.
+
+@subsubsection{Dead code elimination}
+
+TODO define flow analysis
+
+After doing flow analysis, we can determine the control flow for the whole program,
+allowing us to see which expression are executed. If we mark every line of code that
+has the potential to be executed, we're left with all the "dead code" (i.e. code that
+cannot ever be executed in our program).
+
+Dead code elimination cuts down wasted resource usage that is the result of lazy
+programming. It can even be exposed to the programmer as a linting or code quality
+metric so they can determine how much of the project is wasted.
+
+Consider the following code:
+
+@(define dc (make-code-eval #:lang "racket"))
+@(dc '(define (a-pure-function f) f))
+@code-examples[#:lang "racket" #:context #'here #:eval dc]|{
+    (define (f x)
+      (let ((g (a-pure-function x)))
+        (+ 2 x)))
+}|
+
+Assuming @tt{(a-pure-function)} doesn't have any side-effects, the calculation it
+does is wasted, since @tt{g} is never used. Therefore, the code will still be correct
+if we remove the binding.
+
+@code-examples[#:lang "racket" #:context #'here #:eval dc]|{
+    (define (f x)
+      (let ()
+        (+ 2 x)))
+}|
+
+This reduces the size of our code and makes further optimizations simpler and faster since
+we don't waste time reasoning about code that is never run.
+
+@subsubsection{Redundant assignment removal}
+
+A similar pass related to dead-code elimination is redundant assignment elimination.
+If we reassign to a value twice, before reassigning it (again assuming no side effects),
+we can delete the first assignment.
+
+We could then transform this code:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define x (* 30 20))
+    (set! x 30)
+    (println x)
+}|
+
+into this code:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define x 30)
+    (println x)
+}|
+
+@subsubsection{Loop invariant detection}
+
+If code that is executed repeatedly is tuned for performance, the overall speed of a program can
+improve drastically. When possible, optimizing compilers will often move code from inside
+a loop to the scope above, if the value isn't determined by the loop. For instance,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (require math/number-theory)
+    (for ((i (in-range 0 200)))
+     (let ((j (* i 2)) (k (nth-prime 20)))
+      (+ j k)))
+}|
+
+Since @tt{j} relies on @tt{i}, a variable computed in the loop, we must leave it where it is.
+However, @tt{k} recalculates the 20th prime in every iteration, despite the fact that the 20th prime
+never changes. Therefore, we can "hoist" it out of the loop, and only calculate its value once.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (require math/number-theory)
+    (let ((k (nth-prime 20)))
+     (for ((i (in-range 0 200)))
+      (let ((j (* i 2)))
+       (+ j k))))
+}|
+
+Loops constructs permeate imperative code, but are not as popular in functional languages,
+so this type of optimization is less useful to us. However, it could still be used for hoisting
+variables outside of recursive named-@tt{let}s or recursive inner functions.
+
+@subsubsection{Loop unrolling}
+
+Another optimization for loops is loop unrolling which lowers the cost of short loop
+expressions. Since the loop expressions will regularly branch, it will be expensive to finish
+an iteration, check whether the loop is finished, then jump to the beginning of the loop again.
+
+Sometimes (if the loop is small enough), loop unrolling can completely eliminate the loop,
+but in cases with many iterations, it can still partially unroll the loop to make the loop
+execute the same sequence of multiple times in an iteration. For instance,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (for ((i (in-range 0 20)))
+     (print "hello world!"))
+}|
+
+Could be rewritten as,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (for ((i (in-range 0 20 5)))
+     (print "hello world!")
+     (print "hello world!")
+     (print "hello world!")
+     (print "hello world!")
+     (print "hello world!"))
+}|
+
+Or in a more sophisticated example,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define position #(1 3 2))
+    (define translation #(2 2 1))
+    (for/vector ((p position) (t translation))
+      (+ p t))
+}|
+
+Could be rewritten,
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define position #(1 3 2))
+    (define translation #(2 2 1))
+    (vector
+      (+ (vector-ref position 0) (vector-ref translation 0))
+      (+ (vector-ref position 1) (vector-ref translation 1))
+      (+ (vector-ref position 2) (vector-ref translation 2)))
+}|
+
+Which is far more performant since we've fully eliminated branching.
+
 @subsection{Code generation}
-@subsubsection{Continuation passing style}
-@subsubsection{A-normal form}
-@subsubsection{Three address code}
+@subsubsection{From A-normal form to assembly}
+
+@subsubsection{Peephole Optimizations}
 
 @(include-section "bib.scrbl")
 

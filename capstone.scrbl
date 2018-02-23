@@ -952,11 +952,73 @@ If we look at the following code, we can hand optimize a few things.
 
 Given @tt{+widget-price+} stays constant throughout the program, calculating the
 @tt{(widget-price-with-tax)} will be the same number in every case. Rather than recalculating
-it ever time
+it ever time we call the function, we can determine statically (i.e. at compile time) that
+the value of the widget price is 3.18.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define (widget-price-with-tax)
+      3.18)
+
+    (widget-price-with-tax)
+}|
+
+In this case, we were just dealing with constants, but partial evaluation is even more
+powerful than that. For instance, an expression comprised of pure function could be
+evaluated at runtime so as little code is run at runtime as possible.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (define +widget-price+ 3)
+    (define (widget-price-with-tax)
+      (+ (* +widget-price+ 0.06) +widget-price+))
+
+    (cons 'my-new-widget (cons 'price (cons (widget-price-with-tax) '())))
+}|
+
+Since all the necessary information for this program is available to the compiler at runtime
+it could partially evaluate this example to:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    '(my-new-widget price 3.18)
+}|
 
 @subsubsection{Deforestation}
 
-Deforestation (also known as fusion)
+In functional programming, loops are generally discouraged since they're hard to write and
+difficult to reason about. Instead, functional languages encourage the use of @tt{map},
+@tt{filter}, and @tt{reduce} (or @tt{foldl}).
+
+For instance, to list all the hobbits with names that end with 'r':
+
+@(define defor-eval (make-code-eval #:lang "racket"))
+@code-examples[#:lang "racket" #:context #'here #:eval defor-eval]|{
+    (require srfi/13)
+    (define *names* '("Thorin" "Fili" "Kili" "Balin" "Dwalin"
+                      "Oin" "Gloin" "Dori" "Nori" "Ori"
+                      "Bifur" "Bofur" "Bombur"))
+    (map string-reverse
+     (filter (λ (s) (eq? (string-ref s 0) #\r))
+      (map string-reverse
+       (map string-downcase *names*))))
+}|
+
+Besides the fact that using a @tt{string-reverse} is an extremely wasteful way to
+check the first letter of a string, we're also constructing many intermediate lists that
+we never even use. Every @tt{map} call generates a brand new list, and throws away the
+previous. We can optimize these functions with deforestation.
+
+@code-examples[#:lang "racket" #:context #'here #:eval defor-eval]|{
+    (filter-map
+     (λ (s)
+      (and (eq? (string-ref ((compose string-reverse string-downcase) s) 0) #\r)
+       (string-downcase s)))
+     *names*)
+}|
+
+While it is difficult to understand this code, it only loops through one list, and only
+constructs one new list. In the previous example, it looped through the same list 4 times,
+and constructed 4 intermediate lists that it threw away. This is a hugely valuable
+optimization for functional languages since it has the potential to massively cut down on
+computation time for processing large lists.
 
 @subsubsection{Various other optimization techniques}
 
@@ -1099,6 +1161,11 @@ Could be rewritten,
 Which is far more performant since we've fully eliminated branching.
 
 @subsection{Code generation}
+
+Finally, after transforming, tweaking, and pruning our original source code, we've now
+reached the point in the process where we can start generating actual machine code for
+our target architecture.
+
 @subsubsection{From A-normal form to assembly}
 
 @subsubsection{Peephole Optimizations}

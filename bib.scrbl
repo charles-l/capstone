@@ -8,6 +8,12 @@
     #:author "John Tromp"
     #:url "https://tromp.github.io/cl/LC.pdf")
   (bib-entry
+    #:key "DrS"
+    #:title "DrScheme: A Programming Environment for Scheme"
+    #:is-book? #f
+    #:author "Robert Bruce Findler, John Clements , Cormac Flanagan, Matthew Flatt, Shriram Krishnamurthi, Paul Steckler and Matthias Felleisen"
+    #:url "https://users.soe.ucsc.edu/~cormac/papers/jfp01.pdf")
+  (bib-entry
     #:key "Leijen"
     #:title "Binary Lambda Calculus and Combinatory Logic"
     #:is-book? #f
@@ -20,7 +26,7 @@
     #:is-book? #t
     #:author "Harold Abelson, Jerry Sussman and Julia Sussman")
   (bib-entry
-    #:key "Pierce"
+    #:key "Types and PL"
     #:title "Types and Programming Languages"
     #:is-book? #t
     #:author "Benjamin C. Pierce")

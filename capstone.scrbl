@@ -27,37 +27,81 @@
     }
 }
 
-We'll be using the Racket programming language for the implementations in this
-book. Racket is a descendent of Lisp, which was the second high-level language
-ever created. Despite its age, Lisp dialects are still in use today (particularly in
-the programming language theory community). Racket is designed to be a
-programming language implementation test bed, and has many tools and libraries that
-will make the implementations in this book simpler than a similar program in C or Java.
+We'll use the Racket programming language for the implementations
+throughout the book. Racket is a descendent of Lisp, the second high-level
+language created (after Fortran). Despite its age, Lisp dialects are in
+popular today (particularly in the programming language theory community).
+Racket was designed to aid programming language developers in prototyping
+and experimenting with new programming language paradigms. It is a test
+bed, with many tools and libraries make implementations simple and
+concise. Instead of tracking memory usage in C or writing dozens of
+classes in a complicated hierarchy in Java, we will focus on developing
+compilers and interpreters using domain-specific languages provided by
+Racket.
 
-Racket is an extremely simple language and is easy to understand in a few sittings and
-a bit of experimentation. You're encouraged to enter the simple programs throughout this
-book and fiddle with them yourself, but it is especially important for this chapter so
-you get a basic understand of how the language works.
+Even without the libraries and extra resources, Racket is still an
+excellent choice for developing programming languages. With built-in
+functional pattern matching, idiomatic use of recursion, which is useful
+for tree-navigation, and a simple, easy-to-implement kernel (which makes
+building Lisp interpreters trivial).
 
-Lisp's@note{We'll be using Racket and Lisp interchangeably when talking about basic concepts that
-apply to most Lisps} syntax is extremely minimal. It's prefix notation, where parentheses
-mean its a function call.
+Racket is a simple language that you can learned quickly. You're
+encouraged to enter the simple programs throughout this book to see the
+results yourself. Fidget with them in a REPL. Tweak them and observe what
+changes in the output. You're encouraged to copy the code throughout the
+book, but it's especially vital to understand this chapter since concepts
+from it will be referenced throughout the book.
+
+Lisp's@note{We'll be using Racket and Lisp interchangeably when talking
+about basic concepts that apply to Lisp implementations} syntax is
+extremely minimal. Expressions are written in prefix notation, with
+parentheses to denote expressions.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (println "Hello world")
 }|
 
-Lisp doesn't (by default) have any form of infix notation. So standard numeric
-operations are written in prefix form. For example, 3 * (4 + 2) would be written
+Literal values (i.e. strings, numbers, or booleans) and variables are
+written without parentheses.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+"reeeee"
+2
+
+(define the-number-three 3)
+the-number-three
+}|
+
+The number of parentheses is significant in Lisp, unlike other languages
+where they're used for redefining order of operations. It's nonsense to
+write extra parentheses in many contexts. For instance, the variable we
+defined in the previous example in another pair of parentheses will
+attempt to execute the bound value (the number 3) as a function. This
+doesn't make sense, so it's important to match parentheses carefully (a
+good editor is invaluable!).
+
+@code-examples[#:lang "racket" #:context #'here]|{
+(the-number-three)
+}|
+
+The DrRacet IDE that ships with Racket @cite{DrS} is a common choice for
+newcomers to the language. DrRacket features a REPL, a graphical debugger,
+and macro expander. It highlights and indents Racket code properly, and
+generally makes life easier for users who aren't familiar with Lisp syntax
+and notation.
+
+Lisp doesn't (by default) have infix notation. Standard numeric operations
+are written in prefix form. For example, 3 * (4 + 2) is written:
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (* 3 (+ 4 2))
 }|
 
-While this format may seem awkward at first, it has the advantage of very normal
-syntax that makes parsing and macros possible (which we'll see soon).
+This format seems awkward at first, but has the advantage of simple syntax
+that is straightforward to parse and makes user defined macros possible
+(which we'll look at later).
 
-Racket has standard data types (strings, numbers, characters):
+Racket has standard data types (strings, numbers, and characters):
 
 @code-examples[#:lang "racket" #:context #'here]|{
     "reeeee"
@@ -65,24 +109,36 @@ Racket has standard data types (strings, numbers, characters):
     #\z
 }|
 
-And it also has a few others that are typically seen in other Lisps. Namely
-symbols, cons cells, lists, and vectors.
+And it has built-in data-types that are typically seen in Lisps. Namely symbols,
+cons cells, lists, and vectors.
 
-Symbols are very similar to strings. The only difference is the string value is
-"interned" (i.e. inserted into an internal hash table), so lookups are fast.
-This means symbols are extremely cheap to compare, so they can be used for enums
-and the like.
+Symbols are similar to strings. The only distinction is the symbol's value
+is "interned" (i.e. inserted into an internal hash table), to make lookups
+fast. This means symbols are cheap to compare in contexts where enums
+would be used in other languages.
 
-Symbols are created with a quote.
+Symbols are created with the quote keyword:
 
 @code-examples[#:lang "racket" #:context #'here]|{
-    'symbols-are-cooler-than-strings
-    (println 'just-a-symbol)
+(quote symbols-are-cooler-than-strings)
+(println (quote just-a-symbol))
 }|
 
-Lisp's primary container structure is cons cell. A cons cell is a pair of two values.
-The first value is accessed with the @tt{car} function and the second value is
-accessed with the @tt{cdr} function.
+Since it's awkward to keep write @tt{quote} every time we create a symbol,
+we can use the shorthand @tt{'}.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+'symbols-are-cooler-than-strings
+(println 'just-a-symbol)
+}|
+
+Admittedly, the quote syntax is shocking when seen by programmers who use
+languages that use single quotes to denote characters or strings. But
+quotes are terse, so we will use them.
+
+Lisp's primary container structure is the cons cell. A cons cell is a pair
+of two values. The first and second elements of the pair are accessed with
+the @tt{car} and @tt{cdr} functions respectively.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (cons 'a 'b)
@@ -93,15 +149,15 @@ accessed with the @tt{cdr} function.
     (cdr (cons 'my-other-car-is 'a-cdr))
 }|
 
-Cons cells can hold other cons cells in them, which forms a linked list of
+Cons cells can hold other cons cells in them, to a linked list of
 values.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (cons 'a (cons 'little (cons 'dotted 'list)))
 }|
 
-Generally, rather than storing a value in the last cons cell, it will store the
-null list, @tt{'()}
+Rather than storing a value in the last cons cell, it's standard to store
+the null list, @tt{'()}, which simplifies list navigation.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (cons 'a (cons 'proper (cons 'list '())))
@@ -114,30 +170,40 @@ Since consing a bunch of conses together is tedious, the helper function,
     (list 'a 'b 'c)
 }|
 
-Furthermore, quoting each individual element can become an annoyance quickly, so there are
-some mechanisms for quickly creating lists of literal values. So the previous example is equivalent to,
+Furthermore, quoting each individual element can become an annoyance, so
+we can use the quote keyword to build a list of symbols.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (quote (a b c))
+}|
+
+Or using the shorthand @tt{'}:
 
 @code-examples[#:lang "racket" #:context #'here]|{
     '(a b c)
 }|
 
-The quote symbol can be used to make the entire list and sublists literal values.
+The quote symbol can construct lists, sublists, and literal values.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     '((a b c) d e f 1 2 3 "strings too!")
     '(working with lists and symbols is quite nice)
 }|
 
-And if you want to quote most of the list, but insert a value besides a literal, you can
-use the quasiquote and unquote mechanisms.
+And if you want to quote a list, but insert an expression or bound value
+(i.e. a variable) instead of a literal quote, you can use the quasiquote
+and unquote syntax.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     `(1 plus 2 is ,(+ 1 2))
     `((+ 1 2) is ,(+ 1 2))
+	(define the-sum (+ 1 2))
+	`((+ 1 2) is ,the-sum)
 }|
 
-Variable assignment is important in most languages, and Racket has two ways of doing it.
-The first is using the @tt{define} keyword:
+Variable assignment (called variable binding in functional languages) is
+possible in Racket with two mechanisms. The first is using the @tt{define}
+keyword (as shown before):
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (define my-awesome-list (list 'a 'b 'c))
@@ -145,26 +211,47 @@ The first is using the @tt{define} keyword:
     (cdr my-awesome-list)
 }|
 
-This is similar to other languages, and the variable only exists in the scope it
-was created in.
+This is similar to assignment in most languages. The variable exists in
+the block or function it is defined in, and is deleted once it goes out of
+scope.
 
-The second (generally more idiomatic) way of defining variables is with a
-@tt{let} binding. With a @tt{let} binding the scope of the variable can be
-defined with a block.
+The second way of defining variables is with a @tt{let}
+binding@note{@tt{let} bindings are more idiomatic in functional languages,
+but Racket code usually uses the @tt{define} keyword since it compiles to
+a @tt{let} binding anyway.}. With a @tt{let} binding the scope of the
+variable can be explicitly defined with a block.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (let ((x 2) (y 3))
      (+ x y))
 }|
 
-The reason this second version is somewhat preferred is because the scope of a
-variable is made explicit, and @tt{let} bindings are better for seeing how a
-binding is shadowed.
+After the ending parenthesis for the @tt{let} block, the variable no
+longer exists. Attempting to reference it results in an error:
 
-Racket encourages the use of unnamed functions@note{Generally called anonymous
-functions} with lambdas. A lambda can be defined with the lambda keyword
-followed by the arguments and body of the function. To call the function, wrap
-it in another set of parenthesis to apply it to the arguments you pass it.
+@code-examples[#:lang "racket" #:context #'here]|{
+    (let ((x 2) (y 3))
+     (+ x y))
+	x
+}|
+
+Variations of @tt{let} allow the programmer to specify whether bindings
+can reference each other (@tt{let*}), or reference themselves recursively
+@tt{letrec} (a useful construct for constructing recursive inner functions).
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (let* ((x 2) (y (+ x 2)))
+     (+ x y))
+
+    (letrec ((y 2) (c (cons 'a y)))
+     c)
+}|
+
+Racket encourages the use of unnamed functions@note{Called
+@italic{anonymous functions}} with the @tt{lambda} keyword. A @tt{lambda}
+requires arguments and a body. To call the newly constructed @tt{lambda},
+wrap it in another set of parenthesis to apply it to the arguments you
+pass.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (lambda (x y)
@@ -174,25 +261,61 @@ it in another set of parenthesis to apply it to the arguments you pass it.
       (+ x y)) 2 4)
 }|
 
-Functions are first class values in Lisp, meaning they can be assigned as
-variables.
+Functions are first class values in Lisp, which means they can be passed
+to another function like any primitive value or bound to a variable.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (define f (lambda (a)
                 (+ a 2)))
     (f 3)
-    (let ((blahify (lambda (n)
-                    (string-append n " blah!"))))
-        (blahify "its a"))
+	(letrec ((make-bacon
+			  (lambda (n)
+			   (cond
+				((zero? n) '())
+				(else
+				 (cons 'bacon (make-bacon (- n 1))))))))
+	 (make-bacon 5))
 }|
 
-TODO if statements, macros
+In the previous example, you've seen the use of the @tt{cond} keyword,
+which operates like an bunch of @tt{else if} statements. It starts with
+the first condition @tt{(zero? n)}, checks if the condition is true, and
+executes the associated expression if the condition passes (i.e. it
+returns @tt{'()}). We can have more of these conditions, but in this code
+we only ensure that @tt{n} isn't zero.
+
+A larger @tt{cond} example with boolean operators:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(define categorize-character
+	 (lambda (has-staff has-beard has-hairy-feet)
+	  (cond
+	   ((and has-staff has-beard) 'wizard)
+	   ((and has-hairy-feet has-beard) 'dwarf)
+	   (has-hairy-feet 'hobbit)
+	   (else 'unknown))))
+
+	(categorize-character #t #t #f)
+	(categorize-character #f #f #t)
+}|
+
+@tt{if} statements are in Racket, but require terse syntax. The first
+expression in the if statement will run if the condition passes, otherwise
+the second condition will execute.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(if (> 8 (+ 2 1))
+	  (println "8 is greater than (+ 2 1)")
+	  (println "8 is less than (+ 2 1) which obviously isn't true"))
+}|
 
 Lisp heavily encourages recursion. Lisp can be defined without any looping
 mechanisms built into the language since recursion can be used in place of it.
 
-The elegance of cons cells can be made apparent when its possible to navigate a
-tree with nothing but @tt{car}, @tt{car} and @tt{lambda} and if statements.
+Cons cells are elegant. Using the underlying concept of pairs, its
+possible to recursively build and navigate complex data structures like
+trees and lists with nothing but @tt{car}, @tt{car}, @tt{lambda}s and
+@tt{if} statements.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (define append
@@ -212,8 +335,79 @@ tree with nothing but @tt{car}, @tt{car} and @tt{lambda} and if statements.
     (flatten-list '((a b) (c) (e f)))
 }|
 
-Of course, implementing every utility function would be a pain, so we will be using
-the libraries that come bundled with Racket, along with a few popular community packages.
+We're not about to reimplement every utility function from scratch since,
+but remember these simple concepts since we will use cons-cells and lists
+throughout this book. We will use libraries that come with Racket, but the
+documentation is readily available in the @tt{Help > Documentation} menu
+in DrRacket.
+
+@subsubsection{Macros}
+
+Consider the following @italic{list}.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	'(+ 2 3)
+}|
+
+It's data. It doesn't actually calculate the value of 2 + 3, but it looks
+eerily similar to the expression @tt{(+ 1 2)} which will run.
+
+Using the built in @tt{eval} function, we can execute this data as code:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(eval '(+ 2 3))
+}|
+
+Using an unquote, we can cheekily capture surrounding variables.
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(define x 34)
+	(eval `(+ ,x 3))
+}|
+
+We can write code that generates code then evaluates it:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(define (list-downfrom i)
+	 (cond
+	  ((zero? i) '(0))
+	  (else (cons i (list-downfrom (- i 1))))))
+
+	(cons '+ (list-downfrom 10))
+
+	(eval (cons '+ (list-downfrom 10)))
+}|
+
+Using @tt{eval} for demonstration purposes is fine, but its not meant for
+regular use in code since it's extremely unsafe. Besides security
+vulnerabilities, @tt{eval}s can capture surrounding bindings implicitly
+leading to subtle bugs that are difficult to understand.
+
+Don't use @tt{eval}.
+
+But surrendering the power of code that generates code and evaluates it
+would be regrettable. Consider how much boilerplate we might eliminate, or
+how many interesting domain specific languages we might create. A key
+feature of Lisp is its @italic{homoiconicity}. It's syntax @italic{is}
+a data structure it can manipulate. It would be silly to waste a feature
+that powerful.
+
+Lisps provide macros as a safer alternative to @tt{eval}. Macros match
+user defined syntax and expand it into an new form specified by the
+programmer at compile-time.
+
+A contrived example might be @tt{inverse-if}, a feeble attempt at code obfuscation:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+	(define-syntax (inverse-if stx)
+	  (syntax-case stx ()
+	    ((inverse-if condition else-expr then-expr)
+		#'(if condition then-expr else-expr))))
+
+	(inverse-if #f "IS THIS TRUE?" "IS THIS FALSE?")
+}|
+
+
 
 @subsubsection{Functional pattern @tt{match}ing}
 
@@ -264,8 +458,6 @@ Functional pattern matching makes code easier to read since it cleanly breaks up
 Each case details specifically the structure of the data it is able to process. Code written with
 functional pattern matching is easier to validate (since you can quickly see each case that is handled),
 and is simpler to extend.
-
-TODO: regular expressions
 
 Like spoken languages, every programming language has its own set of features and
 quarks. Many programming languages vary wildly in syntax (older and newer
@@ -540,23 +732,27 @@ programming languages besides a few purely functional languages like Haskell,
 and in a few languages that encourage the functional paradigm (like Scheme and
 OCaml).
 
-@subsection{Lambda Calculus}
+@subsection{Lambda calculus}
 
-When discussing programming language theory, its useful to know the minimal requirements for
-a language that can compute anything. The common model presented is the Turing machine,
-which is a useful model because it maps closely to real hardware. A Turing machine consists
-of a finite state machine (basically a control flow graph), and a tape reader that can read and write
-to the tape, and shift it left and right. A CPU just executes a list of instructions that create
-a finite state machine, and memory is like a tape (that conveniently enough, doesn't need to be shifted
-left and write to access cells).
+When discussing programming language theory, its useful to know the
+minimal requirements for a language that can compute anything. The common
+model presented is the Turing machine, which is a useful model because it
+maps closely to real hardware. A Turing machine consists of a finite state
+machine (basically a control flow graph), and a tape reader that can read
+and write to the tape, and shift it left and right. A CPU just executes
+a list of instructions that create a finite state machine, and memory is
+similar to a tape that doesn't require shifting to access arbitrary cells.
 
-The minimal requirements for computability can lead to some interesting results. For instance,
-HTML5 and CSS3 (without JavaScript), C++ templates, Magic: The Gathering (the card game),
-Minecraft, Excel formulas, and a plethora of other systems are accidentally Turing complete
-@note{That is to say, they fully implement a Turing machine}. This means that @italic{any} computable
-problem (i.e. any problem that can be solved with a real computer), can be solved with any of these
-Turing complete systems. You could calculate the Fibonacci sequence with Magic the Gathering, or compute
-a frame of Doom with an Excel spreadsheet. You could emulate an NES game with just C++ templates,
+The minimal requirements for computability can lead to some interesting
+results. For instance, HTML5 and CSS3 (without JavaScript), C++ templates
+(which were Turing complete by accident), Magic: The Gathering (the card
+game), Minecraft, Excel formulas, and a plethora of other systems are
+accidentally Turing complete @note{That is to say, they fully implement
+a Turing machine}. This means that @italic{any} computable problem (i.e.
+any problem that can be solved with a real computer), can be solved with
+any of these Turing complete systems. You could calculate the Fibonacci
+sequence with Magic the Gathering, or compute a frame of Doom with an
+Excel spreadsheet. You could emulate an NES game with just C++ templates,
 and do matrix multiplication with CSS3 rules.
 
 Obviously, these examples are a little silly. These systems are not meant for computation, so they're
@@ -582,13 +778,84 @@ Would be written as
 
 @$${\lambda i \; . \; + \; 32 \; i}
 
-Sometimes, parentheses will be included to make the end of an expression clear.
+Sometimes, parentheses will be included to clarify where an expression the
+ends. This is particularly useful for applications@note{We will use the
+term @italic{function application} and @italic{function call}
+interchangeably}. For instance:
 
-@$${(\lambda i \; . \; + \; 32 \; i) 2}
+@$${(\lambda i \; . \; + \; 32 \; i) \; 2}
+
+Which @italic{reduces} (which means evaluates) to:
+
+@$${(\lambda i \; . \; + \; 32 \; i) \; 2 \rightarrow \; (+ \; 32 \; 2) \rightarrow 34}
+
+The @${\rightarrow} denotes a single step of evaluation
 
 To make our notation easier to understand, we'll allow function definitions through the
 @tt{=} symbol. Though it is possible to represent recursion with only anonymous functions
 through the Y-combinator, it is clearer to allow function definitions.
+
+In our previous examples, we've used operators (like @${+}) and numbers in
+our functions, but lambda calculus doesn't necessarily require numbers,
+standard mathematical operators, or lists. Functions can encode data with
+Church Encoding [Types and PL]. Once again, for pragmatic reasons, we will
+extend lambda calculus to include common datatypes like numbers, strings,
+and booleans. We will also assume common operations on these datatypes.
+
+@subsubsection{Multiple arguments and currying}
+
+We can represent multiple arguments in lambda calculus by returning a new
+function for every argument. For instance, if we wanted to write
+a function to add three arguments together, we might write:
+
+@$${\lambda a \; . \; \lambda b \; . \; \lambda c \; . \; (+ \; a \; b \; c)}
+
+And to evaluate it, we simply evaluating each returned function until we
+the third function that adds the arguments.
+
+@$${((((\lambda a \; . \; \lambda b \; . \; \lambda c \; . \; (+ \; a \; b \; c)) 1) 2) 3) \rightarrow}
+@$${((\lambda b \; . \; \lambda c \; . \; (+ \; 1 \; b \; c) 2) 3) \rightarrow}
+@$${(\lambda c \; . \; (+ \; 1 \; 2 \; c) 3) \rightarrow}
+@$${(+ \; 1 \; 2 \; 3) \rightarrow 6}
+
+After each of the first three steps of evaluation, the function reduces to
+a new function with the inner value bound to the argument we passed to it.
+We can take advantage of these "partial applications" to build functions
+with where some of the code is evaluated.
+
+For instance, consider a string concatenate function (called @tt{concat}).
+
+@$${\texttt{concat} \; \texttt{"a"} \; \texttt{"b"} \rightarrow \texttt{"ab"}}
+
+If we wanted to create a function called @tt{suffix}, that concatenates
+a string (@tt{s}) onto the suffix (@tt{u}).
+
+@$${\texttt{suffix} = \lambda u \; . \; \lambda s \; . \; \texttt{concat} \; s \; u}
+
+We can partially apply this function to create an @tt{excited} function
+that concatenates an exclamation point onto a string it is passed.
+
+@$${\texttt{excited} = ((\texttt{suffix} \; \texttt{"!"}) \rightarrow (\lambda u \; . \; \lambda s \; . \;
+\texttt{concat} \; s \; u) \; \texttt{"!"} \rightarrow \lambda s \; . \; \texttt{concat} \; s \; \texttt{"!"})}
+
+We can apply @tt{excited} to any string and the function will append the
+explanation point.
+
+@$${\texttt{excited} \; \texttt{"currying is cool"} \rightarrow}
+@$${(\lambda s \; . \; \texttt{concat} \; s \; \texttt{"!"}) \; \texttt{"currying is cool"} \rightarrow}
+@$${\texttt{concat} \; \texttt{"currying is cool"} \; \texttt{"!"} \rightarrow \texttt{"currying is cool!"}}
+
+Currying is possible in Racket using the @tt{curry} function.
+
+@code-examples[#:lang "racket" #:eval ev2 #:context #'here]|{
+	(define (suffix suf str)
+	  (string-append str suf))
+
+	(define excited (curry suffix "!"))
+	(excited "currying is cool")
+}|
+
+@subsubsection{Function composition}
 
 Nested function calls are prevalent in this type of programming, which can result in cluttered
 notation.
@@ -598,7 +865,7 @@ notation.
 @(ev2 '(define g identity))
 @(ev2 '(define h identity))
 @(ev2 '(define i identity))
-@(ev2 '(define j identity))
+@(ev2 '(define (j _) 'some-transformed-value))
 
 @code-examples[#:lang "racket" #:eval ev2 #:context #'here]|{
     (f (g (h (i (j 'a-value)))))
@@ -619,32 +886,6 @@ The compose operator actually comes from math, and is notated like so:
 Programming purely through function composition is called @italic{point-free programming}, and has
 the advantage of having fewer explicitly named variables which can make code easier to read and understand
 (since naming variables is a difficult task).
-
-In our previous examples, we've used operators (such as @${+}) and numbers in our functions,
-but lambda calculus doesn't necessarily need numbers, standard mathematical operators, or lists
-since functions can be used to encode all that information.
-
-Since functions are just values, we can return a function rather than evaluating it immediately.
-
-@$${(\lambda i \; . \; \lambda y \; . \; y)}
-
-Using this technique, we can represent numbers as a series of function compositions. This technique
-is called Church encoding @cite{Tromp}, and can be used to represent numbers and lists, and we can build
-functions that operate on these encoded values.
-
-So to represent the number 3, we just return a new function that composes 3 times.
-
-@code-examples[#:lang "racket" #:context #'here]|{
-    (define three (lambda (f) (lambda (x) (f (f (f x))))))
-}|
-
-So to define the nth natural number, we compose n times.
-
-@$${\lambda f \; . \; \lambda x \; . \; f ( f ( f ( \ldots f ( x ) ) ) )}
-
-The @tt{add1} function just composes a new function to wrap the number with another @${f}:
-
-@$${\lambda n \; . \; \lambda f \; . \; \lambda x \; . \; f (n f x)}
 
 @section{Parsing and Semantic Analysis}
 
@@ -902,6 +1143,16 @@ follow:
 
 
 @subsection{The IR}
+
+After semantically checking the parse tree, the compiler converts the
+parse tree into an intermediate representation (IR). The IR is designed to
+make optimization and analysis easier. After the optimization and analysis
+passes, the compiler generates machine code from the IR. Depending on the
+complexity of the IR, there may be passes to convert the IR into
+a lower-level IR that maps more closely to machine code.
+
+Functional compilers regularly use continuation-passing style (CPS) as an
+intermediate representation.
 
 @subsubsection{Continuation passing style}
 @subsubsection{A-normal form}
@@ -1169,6 +1420,8 @@ our target architecture.
 @subsubsection{From A-normal form to assembly}
 
 @subsubsection{Peephole Optimizations}
+
+@section{References}
 
 @(include-section "bib.scrbl")
 

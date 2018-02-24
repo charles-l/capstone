@@ -1,0 +1,81 @@
+# SBCL
+* Paper: The Python Compiler for CMU common lisp
+    * Documents passes
+* Uses ICR (Implicit continuation representation)
+    * Flow graph rather than a syntax tree
+    * has the following structs
+        (def!struct (ctran (:constructor make-ctran) (:copier nil))
+            * Lead in control transfer to some node
+            * Marks block types?
+            * Marks control flow for nodes?
+        (def!struct (lvar (:constructor make-lvar (&optional dest))
+            * Linear variable. Multiple value.
+            * Knows where it is used.
+        (def!struct (node (:constructor nil)
+            * knows next and prev nodes (which are ctrans)
+            * knows its lexical env
+            * marks tail recursion
+        (def!struct (valued-node (:conc-name node-)
+            * knows its type and has an lvar?
+        (def!struct (cloop (:conc-name loop-)
+            * stores the level of the loop (outer, natural, strange)
+            * stores loop that nests it
+            * stores loops that are nested in it
+        (def!struct (cblock (:include sset-element)
+            * Basic block!
+            * also a double linked list node
+        (def!struct (block-annotation (:constructor nil)
+            * used for tracking emission order for block?
+        (def!struct (component (:copier nil)
+            * groups blocks together so compiler only has to work on components
+              rather than lots of blocks. Simplifies flow analysis
+        (def!struct (cleanup (:copier nil))
+            * stuff for dynamic bindings
+        (def!struct (physenv (:copier nil))
+            * tracks things that are in the "lowest" environment (i.e. bindings that exist
+              directly in the lowest scope and don't require traversal of closures or lexical environments).
+        (def!struct (tail-set)
+        (def!struct (nlx-info
+            * used for tracking non-local exits (i.e. using continuations)
+        (def!struct (leaf (:include sset-element (number (incf *compiler-sset-counter*)))
+            * represents variables, consts and functions
+        (def!struct (basic-var (:include leaf)
+        (def!struct (global-var (:include basic-var) (:copier nil))
+        (def!struct (defined-fun (:include global-var
+        (def!struct (functional (:include leaf
+            * tracks named functions and lambdas
+        (def!struct (clambda (:include functional)
+            * dumb lambda (i.e. only handles lexical args, no rest args or keyword args)
+        (def!struct (optional-dispatch (:include functional) (:copier nil))
+            * handles "overloaded" lambdas
+        (def!struct (arg-info (:copier nil))
+            * tracks extra information for args (e.g. optional, kind, etc)
+        (def!struct (lambda-var (:include basic-var) (:copier nil))
+            * simple arguments to lambdas
+        (def!struct (ref (:include valued-node (reoptimize nil))
+            * references a leaf
+        (def!struct (cif (:include node)
+            * if statements (which are at the end of the block)
+        (def!struct (cset (:include valued-node
+            * set!
+        (def!struct (basic-combination (:include valued-node)
+            * function calls
+        (def!struct (combination (:include basic-combination)
+        (def!struct (mv-combination (:include basic-combination)
+            * multi value function call
+        (def!struct (bind (:include node)
+            * binds lambda values
+        (def!struct (creturn (:include node)
+            * end of a lambda
+        (def!struct (cast (:include valued-node)
+            * type assertions
+        (def!struct (vestigial-exit-cast (:include cast
+        (def!struct (bound-cast (:include cast (%type-check nil))
+            * bounds check + cast
+        (def!struct (dependent-cast (:include cast) (:copier nil))
+        (def!struct (function-designator-cast (:include dependent-cast)
+        (def!struct (modifying-cast (:include cast) (:copier nil))
+        (def!struct (cast-with-hook (:include cast) (:copier nil))
+        (def!struct (entry (:include node)
+            * beginning of lexical exit?
+        (def!struct (exit (:include valued-node)

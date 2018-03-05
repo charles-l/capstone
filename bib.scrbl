@@ -11,7 +11,7 @@
     #:key "DrS"
     #:title "DrScheme: A Programming Environment for Scheme"
     #:is-book? #f
-    #:author "Robert Bruce Findler, John Clements , Cormac Flanagan, Matthew Flatt, Shriram Krishnamurthi, Paul Steckler and Matthias Felleisen"
+    #:author "Robert Bruce Findler, John Clements, Cormac Flanagan, Matthew Flatt, Shriram Krishnamurthi, Paul Steckler and Matthias Felleisen"
     #:url "https://users.soe.ucsc.edu/~cormac/papers/jfp01.pdf")
   (bib-entry
     #:key "Leijen"
@@ -19,7 +19,6 @@
     #:is-book? #f
     #:author "Daan Leijen and Erik Meijer"
     #:url "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf")
-
   (bib-entry
     #:key "SICP"
     #:title "Structure and Interpretation of Computer Programs"
@@ -42,10 +41,10 @@
       #:is-book? #f
       #:author "John McCarthy")
   (bib-entry
-        #:key "Jung"
-        #:title "A short introduction to the Lambda Calculus"
+        #:key "Church, 1932"
+        #:title "A Set of Postulates for the Foundation of Logic."
         #:is-book? #f
-        #:author "Achim Jung")
+        #:author "Alonzo CHurch")
 
   (bib-entry
       #:key "Yunhe"

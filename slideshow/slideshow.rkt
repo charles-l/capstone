@@ -369,7 +369,7 @@
 
 (slide
   (t "Code available in this repo:")
-  (tt "https://github.com/charles-l/comp"))
+  (tt "https://github.com/charles-l/capstone"))
 
 (slide
   (bt "Further reasources")
@@ -378,4 +378,4 @@
   (item "Paradigms of Artificial Intelligence Programming")
   (item "Compilers: Principles, Tools, and Techniques (The Dragon Book)")
   (item "Racket (programming language)")
-  (item "https://github.com/charles-l/capstone"))
+  (item "https://github.com/charles-l/capstone and https://github.com/charles-l/comp"))

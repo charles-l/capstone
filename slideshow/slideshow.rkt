@@ -34,6 +34,8 @@
   'next
   (item "Understand performance")
   'next
+  (item "DSLs")
+  'next
   (item "Build your own!"))
 
 (slide
@@ -101,91 +103,6 @@
       (reveal 3 (item "Less debug/runtime info (unless explicitely added)")))))
 
 (slide
-  (bt "Parsing"))
-
-(slide
-  (para "The process of semantically converting syntax to a structure using a formal grammar"))
-
-(slide
-  (item (tt "lex") "+" (tt "yacc"))
-  (item "Parser combinator"))
-
-(slide
-  (para #:align 'center (tt "lex") (t "+") (tt "yacc"))
-  (item "Standard for modern implementations")
-  (item "Old approach"))
-
-(slide
-  (tt "lex")
-  (item "Tokenizes")
-  (item "Tags"))
-
-(slide
-  (vl-append
-    (tt "int main(int argv, char **argv) {")
-    (tt "  int x = rand_number();")
-    (tt "  printf(\"%d\", x);")
-    (tt "  return 0;")
-    (tt "}"))
-  (para "→ ..., id{'int'}, id{'x'}, equal, id{'rand_number'}, lparen, rparen, semi, ..."))
-
-(slide
-  (t "lexing is a minimal preprocessing pass"))
-
-(slide
-  (para #:align 'center "Parsing (with" (tt "yacc") ")"))
-
-(slide
-  (para (tt "yacc") "converts stream of tokens to" (italic (t "parse tree"))))
-
-(slide
-  (para "for instance, the stream before would become"))
-
-(slide
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"VARIABLE DECLARATION (int)\"];
-            b [label=\"NAME: x\"];
-            c [label=\"FCALL: rand_number\"];
-            d [label=\"ARGS: []\"];
-            a -> b;
-            a -> c -> d;
-            }"))
-
-(slide
-  (t "Parser combinator"))
-
-(slide
-  (para "Functional solution to the problem")
-  (para "Uses " (italic "higher order functions") " to compose parser functions together"))
-
-(slide
-  (para
-    (vl-append
-      (tt "parse(char, \"woot\") => 'w'")
-      (tt "parse(num, \"13\") => 3")))
-  'next
-  (para (tt "parse(num, \"31\") => error ...")))
-
-(slide
-  (para (tt "parse(many(char), \"hax0r\") => \"hax\""))
-  'next
-  (para
-    (tt "parse(many(or(char, num)), \"h0w t0 b a l33t hax0r?\")")
-    (tt " => \"h0w\"")))
-
-(slide
-  (bitmap "runaway.jpg"))
-
-(slide
-  (para "Compilers are tricky"))
-
-(slide
-  (para "Pipeline of passes"))
-
-(slide
   (bt "Frontend")
   (graphviz "digraph G {
             size = \"8,8\";
@@ -211,6 +128,79 @@
             f [label=\"code generation\"];
             a -> b -> c -> d -> e -> f;
             }"))
+
+(slide
+  (bt "Parsing"))
+
+(slide
+  (para "The process of converting syntax to a graph structure using a formal grammar"))
+
+(slide
+  (item (tt "lex") "+" (tt "yacc"))
+  (item "Parser combinator"))
+
+(slide
+  (para #:align 'center (tt "lex") (t "+") (tt "yacc"))
+  (item "Standard for parsers")
+  (item "Old projects"))
+
+(slide
+  (tt "lex")
+  (item "Tokenizes")
+  (item "Tags"))
+
+(slide
+  (vl-append
+    (tt "int main(int argv, char **argv) {")
+    (tt "  int x = rand_number();")
+    (tt "  printf(\"%d\", x);")
+    (tt "  return 0;")
+    (tt "}"))
+  (para "→ ..., id{'int'}, id{'x'}, equal, id{'rand_number'}, lparen, rparen, semi, ..."))
+
+(slide
+  (para (tt "yacc") "converts stream of tokens to" (italic (t "parse tree"))))
+
+(slide
+  (para "for instance, the stream before might become"))
+
+(slide
+  (graphviz "digraph G {
+            size = \"8,8\";
+            ordering=out;
+            node [shape = box];
+            a [label=\"VARIABLE DECLARATION (int)\"];
+            b [label=\"VAR NAME: x\"];
+            c [label=\"FCALL: rand_number\"];
+            d [label=\"ARGS: []\"];
+            a -> b;
+            a -> c -> d;
+            }"))
+
+(slide
+  (t "Parser combinator"))
+
+(slide
+  (para "Functional solution to the problem")
+  (para "Uses " (italic "higher order functions") " to compose parser functions together"))
+
+(slide
+  (para
+    (vl-append
+      (tt "parse(char, \"woot\") => 'w'")
+      (tt "parse(num, \"13\") => 1")))
+  'next
+  (para (tt "parse(num, \"asdf\") => error ...")))
+
+(slide
+  (para (tt "parse(many(char), \"hax0r\") => \"hax\""))
+  'next
+  (para
+    (tt "parse(many(or(char, num)), \"h0w t0 b a l33t hax0r?\")")
+    (tt " => \"h0w\"")))
+
+(slide
+  (bitmap "runaway.jpg"))
 
 (slide
   (tt "Let's build an interpreter!"))
@@ -361,7 +351,7 @@
     (tt "            {'sub1', lambda a: a - 1},")
     (tt "            {'print', print}])")
     (tt "# and evals to ... ")
-    (tt " => 362880")))
+    (tt " => 3628800")))
 
 (slide
   (para #:align 'center (t "It's a real programming language!") (small (t "ish")))

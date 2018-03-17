@@ -316,9 +316,9 @@ pexpr << (pdecl + pexpr_ |
     (tt "def eval(expr, env):")
     (tt "  ...")
     (tt "  elif is_assign_expr():")
-    (tt "    val = eval(lhs, env)")
+    (tt "    val = eval(rhs, env)")
     (tt "    # 0 = current stack frame")
-    (tt "    env[0][rhs] = val")
+    (tt "    env[0][lhs] = val")
     (tt "    return val")
     (tt "  ...")))
 

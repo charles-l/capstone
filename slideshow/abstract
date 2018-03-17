@@ -1,11 +1,11 @@
 Programming languages are formal languages that allow programmers to
-describe an operation with a series of instructions that a computer can
+describe a computation with a series of instructions that a computer can
 execute. Even though software
 developers use programming languages everyday, the implementation of these
 programming languages is often overlooked. Knowing how programming
 languages are implemented enables a programmer to build their own general
 purpose programming languages and DSLs (domain specific langauges). It
-also grants them a deeper understanding of how real-world compilers and
+also gives them a deeper understanding of how real-world compilers and
 interpreters work. In this presentation we discuss various types of
 programming languages, along with how they can be parsed (with parser
 tools like lex, yacc, and parsec), semantically validated, and interpreted

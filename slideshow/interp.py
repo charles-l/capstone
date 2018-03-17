@@ -1,20 +1,29 @@
 from pyparsing import *
 
-expr = Forward()
-var = Word(alphas, alphanums)
-pbool = Literal('true').setParseAction(lambda: True) | Literal('false').setParseAction(lambda: False)
-num = Word(nums).setParseAction(lambda x: int(x[0]))
-literal = var | pbool | num
-decl_ = var + Literal('=') + expr
-decl_.setParseAction(lambda toks: ParseResults(['=', toks[0], toks[2]]))
-decl = Group(decl_)
-ife = Group(Literal('if') + expr + Suppress(':') + expr + expr)
-lm = Group(Literal('lambda') + Group(delimitedList(var)) + Suppress(':') + expr)
-begin = Literal('begin') + Suppress('{') + OneOrMore(expr) + Suppress('}')
-expr_ = Forward()
-args = Suppress('(') + delimitedList(expr) + Suppress(')')
-expr << (decl + expr_ | ife + expr_ | lm + expr_ | begin + expr_ | Group(literal + args) | literal)
-expr_ << (args | Empty())
+pexpr = Forward()
+pvar = Word(alphas, alphanums)
+ptrue = Keyword('true').setParseAction(lambda: True)
+pfalse = Keyword('false').setParseAction(lambda: False)
+pbool = ptrue | pfalse
+pnum = Word(nums).setParseAction(lambda x: int(x[0]))
+pliteral = pbool | pvar | pnum
+pdecl_ = pvar + Literal('=') + pexpr
+pdecl_.setParseAction(lambda toks: ParseResults(['=', toks[0], toks[2]]))
+pdecl = Group(pdecl_)
+pif = Group(Keyword('if') + pexpr + Suppress(':') + pexpr + pexpr)
+plambda = Group(Keyword('lambda') +
+                 Group(delimitedList(pvar)) +
+                 Suppress(':') +
+                 pexpr)
+pbegin = Group(Keyword('begin') + Suppress('{') + OneOrMore(pexpr) + Suppress('}'))
+pargs = Suppress('(') + delimitedList(pexpr) + Suppress(')')
+pexpr_ = pargs | Empty()
+pexpr << (pdecl + pexpr_ |
+         pif + pexpr_ |
+         plambda + pexpr_ |
+         pbegin + pexpr_ |
+         Group(pliteral + pargs) |
+         pliteral) + Optional(Literal(';'))
 
 class Closure():
     def __init__(self, args, body, env):
@@ -22,7 +31,7 @@ class Closure():
         self.body = body
         self.env = env
 
-def eval(t, env):
+def eval(expr, env):
     def lookup(v):
         for f in env:
             if v in f:
@@ -37,41 +46,41 @@ def eval(t, env):
 
     keywords = ('if', '=', 'begin', 'lambda')
 
-    is_if_expr = lambda: t[0] == 'if'
-    is_assign_expr = lambda: t[0] == '='
-    is_begin_expr = lambda: t[0] == 'begin'
-    is_lambda_expr = lambda: t[0] == 'lambda'
-    is_call = lambda: isinstance(t, list) and t[0] not in keywords
+    is_if_expr = lambda: expr[0] == 'if'
+    is_assign_expr = lambda: expr[0] == '='
+    is_begin_expr = lambda: expr[0] == 'begin'
+    is_lambda_expr = lambda: expr[0] == 'lambda'
+    is_call = lambda: isinstance(expr, list) and expr[0] not in keywords
 
-    if is_literal(t):
-        return t
-    elif is_id(t):
-        return lookup(t)
+    if is_literal(expr):
+        return expr
+    elif is_id(expr):
+        return lookup(expr)
     elif is_if_expr():
-        if eval(t[1], env):
-            return eval(t[2], env)
+        if eval(expr[1], env):
+            return eval(expr[2], env)
         else:
-            return eval(t[3], env)
+            return eval(expr[3], env)
     elif is_assign_expr():
-        if not is_id(t[1]):
-            raise Exception("assignment lhs must be an identifier: " + str(t))
-        r = eval(t[2], env)
-        assign(t[1], r)
+        if not is_id(expr[1]):
+            raise Exception("assignment lhs must be an identifier: " + str(expr))
+        r = eval(expr[2], env)
+        assign(expr[1], r)
         return r
     elif is_begin_expr():
         last = None
-        for e in t.asList()[1:]:
+        for e in expr[1:]:
             last = eval(e, env)
         return last
     elif is_lambda_expr():
-        return Closure(t[1], t[2], env)
+        return Closure(expr[1], expr[2], env)
     elif is_call():
         # assume its a function call
         return apply(
-                eval(t[0], env),
-                [eval(a, env) for a in t[1:]])
+                eval(expr[0], env),
+                [eval(a, env) for a in expr[1:]])
     else:
-        raise Exception("unknown expression" + originalTextFor(t))
+        raise Exception("unknown expression: " + str(expr))
 
 def apply(fun, args):
     is_primitive = lambda: callable(fun)
@@ -84,19 +93,11 @@ def apply(fun, args):
     else:
         raise TypeError("Not a function " + str(fun))
 
-program = """
-begin{
-  fac = lambda n:
-    if isone(n):
-      1
-      mul(n, fac(sub1(n)))
-  print(fac(10))
-}
-"""
+def parse(str):
+    return pexpr.parseString(str)
 
-tree = expr.parseString(program)
-print(tree)
-eval(tree, [{'isone': lambda x: x == 1,
-    'mul': lambda x, y: x * y,
-    'sub1': lambda x: x - 1,
-    'print': print}])
+def parse_and_eval(str, env = [{}]):
+    t = parse(str)
+    for e in t.asList():
+        e = eval(e, env)
+    return e

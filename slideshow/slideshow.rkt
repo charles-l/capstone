@@ -6,6 +6,9 @@
 
 (current-main-font "Roboto Sans")
 
+(define (code t)
+  (apply vl-append (map tt (string-split t "\n"))))
+
 (define (graphviz . str)
   (let* ((f (make-temporary-file "rkttmp~a.png"))
          (cmd (~a "printf \"" (string-replace (apply string-append str) "\""
@@ -103,31 +106,8 @@
       (reveal 3 (item "Less debug/runtime info (unless explicitely added)")))))
 
 (slide
-  (bt "Frontend")
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"lex\"];
-            b [label=\"parse\"];
-            c [label=\"semantic analysis\"];
-            a -> b -> c;
-            }"))
-
-(slide
-  (bt "Backend")
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"desugar\"];
-            b [label=\"partial evaluation\"];
-            c [label=\"deforestation\"];
-            d [label=\"data-flow analysis\"];
-            e [label=\"dead-code elimination\"];
-            f [label=\"code generation\"];
-            a -> b -> c -> d -> e -> f;
-            }"))
+  (t "Frontend")
+  (t "Backend"))
 
 (slide
   (bt "Parsing"))
@@ -160,9 +140,6 @@
 
 (slide
   (para (tt "yacc") "converts stream of tokens to" (italic (t "parse tree"))))
-
-(slide
-  (para "for instance, the stream before might become"))
 
 (slide
   (graphviz "digraph G {
@@ -203,7 +180,40 @@
   (bitmap "runaway.jpg"))
 
 (slide
-  (tt "Let's build an interpreter!"))
+  (bt "Compilers"))
+
+(slide
+  (item "Structured as passes")
+  (item "Using nanopass framework for implementation")
+  (item "Often written in C++, Haskell, or Lisp (or the language itself)"))
+
+(slide
+  (bt "Frontend")
+  (graphviz "digraph G {
+            size = \"8,8\";
+            ordering=out;
+            node [shape = box];
+            a [label=\"lex\"];
+            b [label=\"parse\"];
+            c [label=\"semantic analysis\"];
+            a -> b -> c;
+            }"))
+
+(slide
+  (bt "Backend")
+  (graphviz "digraph G {
+            size = \"8,8\";
+            ordering=out;
+            node [shape = box];
+            a [label=\"desugar\"];
+            b [label=\"inlining\"];
+            c [label=\"partial evaluation\"];
+            d [label=\"deforestation\"];
+            e [label=\"data-flow analysis\"];
+            f [label=\"dead-code elimination\"];
+            g [label=\"code generation\"];
+            a -> b -> c -> d -> e -> f ->g;
+            }"))
 
 (slide
   (para "In truth, there aren't many pure interpreters anymore"))
@@ -212,16 +222,26 @@
   (para "Most modern \"interpreters\" compile to bytecode (interpreted by a VM)"))
 
 (slide
+  (bitmap "its-a-lie.jpg"))
+
+(slide
   (item "Java")
   (item "Python")
   (item "Ruby")
   (item "JavaScript"))
 
 (slide
+  (item "Graph walking interpreters")
+  (item "Bytecode interpreter"
+        (item "Stack-based VM (JVM, CLR)")
+        (item "Register-based VM (Lua/LuaJIT, V8)"))
+  (item "Just-in-time compilation"))
+
+(slide
   (para "Graph walking interpreters are straightforward"))
 
 (slide
-  (para "An interpreter walks the tree and executes the semantic meaning dynamically"))
+  (tt "So lets build one!"))
 
 (slide
   (tt "the wizard book")
@@ -236,59 +256,92 @@
   (small (t "which we're not gonna do 'cuz Lisp is special")))
 
 (slide
+  (bt "Parser")
+  (small (code "from pyparsing import *
+pexpr = Forward()
+pvar = Word(alphas, alphanums)
+ptrue = Keyword('true').setParseAction(lambda: True)
+pfalse = Keyword('false').setParseAction(lambda: False)
+pbool = ptrue | pfalse
+pnum = Word(nums).setParseAction(lambda x: int(x[0]))
+pliteral = pvar | pbool | pnum
+pdecl_ = pvar + Literal('=') + pexpr
+pdecl_.setParseAction(lambda toks: ParseResults(['=', toks[0], toks[2]]))
+pdecl = Group(pdecl_)
+pif = Group(Keyword('if') + pexpr + Suppress(':') + pexpr + pexpr)
+plambda = Group(Keyword('lambda') +
+                 Group(delimitedList(pvar)) +
+                 Suppress(':') +
+                 pexpr)
+pbegin = Keyword('begin') + Suppress('{') + OneOrMore(pexpr) + Suppress('}')
+pargs = Suppress('(') + delimitedList(pexpr) + Suppress(')')
+pexpr_ = pargs | Empty()
+pexpr << (pdecl + pexpr_ |
+         pif + pexpr_ |
+         plambda + pexpr_ |
+         pbegin + pexpr_ |
+         Group(pliteral + pargs) |
+         pliteral) + Maybe(Literal(';'))"))
+  )
+
+(define (ieval str (print-source #t))
+  (string-append
+    (if print-source
+      (string-append str " => ")
+      "")
+    (with-output-to-string
+      (thunk
+        (system (format "echo \"from interp import *\n~a\" | python3"
+                        (string-replace str "\"" "\\\"")))))))
+
+(define (pieval str (print-source #t) (pre-eval #f))
+  (ieval
+    (string-append (if pre-eval
+                     (string-append pre-eval "\n")
+                     "")
+                   (format "print(~a)" str)) print-source))
+
+(slide
   (vl-append
-    (tt "def eval(expr, environment):")
+    (tt "def eval(expr, env):")
     (tt "  if is_literal(expr):")
     (tt "    return expr")
     (tt "  ...")
     (blank-line)
-    (tt "eval(4, [{}]) => 4")
-    (tt "eval(\"it's lit\", [{}]) => \"it's lit\"")))
+    (tt (pieval "parse_and_eval('4', [{}])"))
+    (tt (pieval "parse_and_eval('false', [{}])"))))
 
 (slide
   (vl-append
-    (tt "def eval(expr, environment):")
+    (tt "def eval(expr, env):")
     (tt "  ...")
-    (tt "  elif is_assignment(expr):")
-    (tt "    v = eval(expr.rhs, environment)")
-    (tt "    environment[0][expr.lhs] = v")
-    (tt "    return v")
+    (tt "  elif is_assign_expr():")
+    (tt "    val = eval(lhs, env)")
+    (tt "    # 0 = current stack frame")
+    (tt "    env[0][rhs] = val")
+    (tt "    return val")
     (tt "  ...")))
 
 (slide
   (vl-append
-    (tt "def eval(expr, environment):")
+    (tt "def eval(expr, env):")
     (tt "  ...")
-    (tt "  elif is_variable(expr):")
-    (tt "    for frame in environment:")
+    (tt "  elif is_identifier(expr):")
+    (tt "    for frame in env:")
     (tt "      if expr in frame:")
     (tt "        return frame[expr]")
     (tt "    raise NameError(\"unbound value\")")
     (tt "  ...")
     (blank-line)
-    (tt "eval(a, [{'a': 3}]) => 3")
-    (tt "eval([Assign(b, 2), b], [{}]) => 2")))
+    (tt (pieval "parse_and_eval('a', [{'a': 3}])"))
+    (tt (pieval "parse_and_eval('b = 2; b', [{}])"))))
 
 (slide
   (vl-append
-    (tt "def eval(expr, environment):")
-    (tt "  ...")
-    (tt "  elif is_variable(expr):")
-    (tt "    for frame in environment:")
-    (tt "      if expr in frame:")
-    (tt "        return frame[expr]")
-    (tt "    raise NameError(\"unbound value\")")
-    (tt "  ...")
-    (blank-line)
-    (tt "eval(a, [{'a': 3}]) => 3")
-    (tt "eval([Assign(b, 2), b], [{}]) => 2")))
-
-(slide
-  (vl-append
-    (tt "def eval(expr, environment):")
+    (tt "def eval(expr, env):")
     (tt "  ...")
     (tt "  elif is_lambda(expr):")
-    (tt "    return Closure(expr.args, expr.body, env)")
+    (tt "    return Closure(args, body, env)")
     (tt "  ...")))
 
 (slide
@@ -296,25 +349,20 @@
     (tt "def eval(expr, environment):")
     (tt "  ...")
     (tt "  elif is_func_call(expr):")
-    (tt "    return apply(expr.function, expr.args)")))
+    (tt "    return apply(fun, args)")))
 
 (slide
   (vl-append
-    (tt "def apply(function, args):")
-    (tt "  if is_func_call(expr):")
-    (tt "    new_env = [dict(zip(function.argnames, args))]")
-    (tt "              + f.env")
-    (tt "    last = None")
-    (tt "    for expr in function.body:")
-    (tt "      last = eval(expr, new_env)")
-    (tt "    return last")
+    (tt "def apply(fun, args):")
+    (tt "  if is_closure():")
+    (tt "    new_env = [dict(zip(fun.argnames, args))]")
+    (tt "              + fun.env")
+    (tt "    return eval(fun.body, new_env)")
     (blank-line)
-    (tt "# equal to the python code `(lambda x: x)(3)`")
-    (tt "eval(Call(Lambda([Id('x')], Id('x')), 3), [{}])")
-    (tt " => 3")))
+    (para (pieval "parse_and_eval('lambda x: x; (4)', [{}])"))))
 
 (slide
-  (bt "Not that we can really do anything with it")
+  (bt "Not that it does much")
   (bitmap "grumpy.jpg"))
 
 (slide
@@ -324,34 +372,32 @@
     (tt "  if is_primitive(function):")
     (tt "    return function(*args)")
     (blank-line)
-    (tt "eval(Call(Id('print'), 14), [{'print': print}])")
-    (tt " stdout => 14")))
+    (para (pieval "parse_and_eval('add(1, 3)', [{'add': lambda x, y: x + y}])"))))
+
+(define prog
+  "begin{fac = lambda n:
+          if isone(n):
+          1
+          mul(n, fac(sub1(n)));
+   print(fac(10))}")
+
+(define evalstr
+  "parse_and_eval(prog, [{'isone': lambda a: a == 1},
+                       {'mul': lambda a, b: a * b},
+                       {'sub1': lambda a: a - 1},
+                       {'print': print}])")
 
 (slide
-  (vl-append
-    (tt "# supports recursion")
-    (tt "fib = lambda n:")
-    (tt "        if is_one(n): 1")
-    (tt "        else: n * fib(sub1(n))")
-    (tt "print(fib 10)")))
+  (code prog))
 
 (slide
   (vl-append
     (tt "# parses to ...")
-    (tt "prog = Begin(")
-    (tt "  Assign(Id('fac'), Lambda([Id('n')],")
-    (tt "    If(Call(Id('is_one'), Id('n')),")
-    (tt "      1,")
-    (tt "      Call(Id('*'), Id('n'), Call(Id('fac'),")
-    (tt "        Call(Id('sub1'), Id('n'))))))),")
-    (tt "  Call(Id('print'), Call(Id('fac'), 10)))")
+    (para (pieval (format "parse('~a')" (string-replace prog "\n" "")) #f))
     (blank-line)
-    (tt "eval(prog, [{'is_one', lambda a: a == 1},")
-    (tt "            {'*', lambda a, b: a * b},")
-    (tt "            {'sub1', lambda a: a - 1},")
-    (tt "            {'print', print}])")
+
     (tt "# and evals to ... ")
-    (tt " => 3628800")))
+    (para (pieval evalstr #f (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
 
 (slide
   (para #:align 'center (t "It's a real programming language!") (small (t "ish")))

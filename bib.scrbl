@@ -52,3 +52,9 @@
       #:is-book? #f
       #:author "Yunhe Shi, David Gregg, Andrew Beatty and M. Anton Ertl")
   )
+
+@;{https://arxiv.org/pdf/1611.00467.pdf}
+@;{Dragon book}
+@;{PAIP}
+@;{http://andykeep.com/pubs/dissertation.pdf}
+@;{http://library.readscheme.org/page8.html}

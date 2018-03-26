@@ -50,48 +50,6 @@
   (item "Object-oriented")
   (item "Functional"))
 
-(slide
-  (bt "Types in languages")
-  (t "Dynamic vs static")
-  (t "Strong vs weak"))
-
-(slide
-  (t "Types in languages")
-  (parameterize ((plot-width    800)
-                 (plot-height   600)
-                 (plot-font-size 30)
-                 (plot-font-face "Liberation Sans")
-                 (plot-x-label  "Weak ↔ Strong")
-                 (plot-y-label  "Dynamic ↔ Static"))
-    (define xs (build-list 20 (λ _ (random))))
-    (define ys (build-list 20 (λ _ (random))))
-    (plot '()
-          #:x-min -1.1
-          #:x-max 1.3
-          #:y-min -1.1
-          #:y-max 1.1)))
-
-(slide
-  (t "Types in languages")
-  (parameterize ((plot-width    800)
-                 (plot-height   600)
-                 (plot-font-size 30)
-                 (plot-font-face "Liberation Sans")
-                 (plot-x-label  "Weak ↔ Strong")
-                 (plot-y-label  "Dynamic ↔ Static"))
-    (define xs (build-list 20 (λ _ (random))))
-    (define ys (build-list 20 (λ _ (random))))
-    (plot (list
-            (point-label (vector -1 0.5) "C")
-            (point-label (vector -0.5 0.7) "C++")
-            (point-label (vector 0.7 -1) "Python")
-            (point-label (vector -0.8 -1) "JavaScript")
-            (point-label (vector 1 1) "SML"))
-          #:x-min -1.1
-          #:x-max 1.3
-          #:y-min -1.1
-          #:y-max 1.1)))
-
 (revealing-slide
   (two-columns
     (vc-append 20
@@ -106,53 +64,26 @@
       (reveal 3 (item "Less debug/runtime info (unless explicitely added)")))))
 
 (slide
-  (t "Frontend")
-  (t "Backend"))
-
-(slide
   (bt "Parsing"))
 
 (slide
   (para "The process of converting syntax to a graph structure using a formal grammar"))
 
 (slide
-  (item (tt "lex") "+" (tt "yacc"))
-  (item "Parser combinator"))
-
-(slide
-  (para #:align 'center (tt "lex") (t "+") (tt "yacc"))
-  (item "Standard for parsers")
-  (item "Old projects"))
-
-(slide
-  (tt "lex")
-  (item "Tokenizes")
-  (item "Tags"))
-
-(slide
-  (vl-append
-    (tt "int main(int argv, char **argv) {")
-    (tt "  int x = rand_number();")
-    (tt "  printf(\"%d\", x);")
-    (tt "  return 0;")
-    (tt "}"))
-  (para "→ ..., id{'int'}, id{'x'}, equal, id{'rand_number'}, lparen, rparen, semi, ..."))
-
-(slide
-  (para (tt "yacc") "converts stream of tokens to" (italic (t "parse tree"))))
-
-(slide
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"VARIABLE DECLARATION (int)\"];
-            b [label=\"VAR NAME: x\"];
-            c [label=\"FCALL: rand_number\"];
-            d [label=\"ARGS: []\"];
-            a -> b;
-            a -> c -> d;
-            }"))
+  (tt "printf(\"my number is %d\", num);")
+  'next
+  (graphviz
+    "digraph G {
+    a [label=\"FUNC CALL\"];
+    b [label=\"FUNC ID (printf)\"];
+    c [label=\"ARGLIST\"];
+    d [label=\"STRING (my number is)\"];
+    e [label=\"VAR ID (num)\"];
+    a -> b;
+    a -> c;
+    c -> d;
+    c-> e;
+    }"))
 
 (slide
   (t "Parser combinator"))
@@ -170,11 +101,18 @@
   (para (tt "parse(num, \"asdf\") => error ...")))
 
 (slide
-  (para (tt "parse(many(char), \"hax0r\") => \"hax\""))
-  'next
   (para
+    (tt "parse(many(char), \"hax0r\") => \"hax\"")
     (tt "parse(many(or(char, num)), \"h0w t0 b a l33t hax0r?\")")
-    (tt " => \"h0w\"")))
+    (tt " => \"h0w\"")
+    (tt "parse(many(word), \"h0w t0 b a l33t hax0r?\")")
+    (tt " => [\"h0w\", \"t0\", \"b\", \"a\", \"l33t\", \"hax0r\", \"?\"]")))
+
+(slide
+  (para
+    (tt "parse(expr, \"printf(\"my number is %d\", num);")
+    (tt " => [FCALL(name: 'printf', ")
+    (tt "     args: [\"my number is %d\", ID(\"num\")])]")))
 
 (slide
   (bitmap "runaway.jpg"))
@@ -183,59 +121,28 @@
   (bt "Compilers"))
 
 (slide
-  (item "Structured as passes")
-  (item "Using nanopass framework for implementation")
-  (item "Often written in C++, Haskell, or Lisp (or the language itself)"))
-
-(slide
   (bt "Frontend")
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"lex\"];
-            b [label=\"parse\"];
-            c [label=\"semantic analysis\"];
-            a -> b -> c;
-            }"))
+  (it "parsing, semantic analysis")
+  (bt "Backend")
+  (it "optimization, codegen"))
 
 (slide
-  (bt "Backend")
-  (graphviz "digraph G {
-            size = \"8,8\";
-            ordering=out;
-            node [shape = box];
-            a [label=\"desugar\"];
-            b [label=\"inlining\"];
-            c [label=\"partial evaluation\"];
-            d [label=\"deforestation\"];
-            e [label=\"data-flow analysis\"];
-            f [label=\"dead-code elimination\"];
-            g [label=\"code generation\"];
-            a -> b -> c -> d -> e -> f ->g;
-            }"))
+  (bt "Interpreters"))
 
 (slide
   (para "In truth, there aren't many pure interpreters anymore"))
 
 (slide
-  (para "Most modern \"interpreters\" compile to bytecode (interpreted by a VM)"))
+  (bitmap "its-a-lie.jpg"))
 
 (slide
-  (bitmap "its-a-lie.jpg"))
+  (para "Most modern \"interpreters\" compile to bytecode (interpreted by a VM)"))
 
 (slide
   (item "Java")
   (item "Python")
   (item "Ruby")
   (item "JavaScript"))
-
-(slide
-  (item "Graph walking interpreters")
-  (item "Bytecode interpreter"
-        (item "Stack-based VM (JVM, CLR)")
-        (item "Register-based VM (Lua/LuaJIT, V8)"))
-  (item "Just-in-time compilation"))
 
 (slide
   (para "Graph walking interpreters are straightforward"))
@@ -249,11 +156,6 @@
 
 (slide
   (bitmap "eval-apply.gif"))
-
-(slide
-  (t "metacircular evaluator")
-  'next
-  (small (t "which we're not gonna do 'cuz Lisp is special")))
 
 (slide
   (bt "Parser")
@@ -349,6 +251,8 @@ pexpr << (pdecl + pexpr_ |
     (tt "def eval(expr, environment):")
     (tt "  ...")
     (tt "  elif is_func_call(expr):")
+    (tt "    fun = expr[0]")
+    (tt "    args = expr[1]")
     (tt "    return apply(fun, args)")))
 
 (slide
@@ -397,7 +301,7 @@ pexpr << (pdecl + pexpr_ |
     (blank-line)
 
     (tt "# and evals to ... ")
-    (para (pieval evalstr #f (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
+    (para (pieval evalstr #t (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
 
 (slide
   (para #:align 'center (t "It's a real programming language!") (small (t "ish")))
@@ -408,10 +312,13 @@ pexpr << (pdecl + pexpr_ |
   (tt "https://github.com/charles-l/capstone"))
 
 (slide
-  (bt "Further reasources")
+  (bt "Further resources")
   (item "Structure and Interpretation of Computer Programs (The Wizard Book)")
   (item "Types and Programming Languages")
   (item "Paradigms of Artificial Intelligence Programming")
   (item "Compilers: Principles, Tools, and Techniques (The Dragon Book)")
   (item "Racket (programming language)")
   (item "https://github.com/charles-l/capstone and https://github.com/charles-l/comp"))
+
+(slide
+  (tt "questions?"))

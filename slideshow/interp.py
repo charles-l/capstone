@@ -16,14 +16,14 @@ plambda = Group(Keyword('lambda') +
                  Suppress(':') +
                  pexpr)
 pbegin = Group(Keyword('begin') + Suppress('{') + OneOrMore(pexpr) + Suppress('}'))
-pargs = Suppress('(') + delimitedList(pexpr) + Suppress(')')
+pargs = Suppress('(') + Optional(delimitedList(pexpr)) + Suppress(')')
 pexpr_ = pargs | Empty()
 pexpr << (pdecl + pexpr_ |
          pif + pexpr_ |
          plambda + pexpr_ |
          pbegin + pexpr_ |
          Group(pliteral + pargs) |
-         pliteral) + Optional(Literal(';'))
+         pliteral) + Optional(Suppress(';'))
 
 class Closure():
     def __init__(self, args, body, env):
@@ -94,10 +94,10 @@ def apply(fun, args):
         raise TypeError("Not a function " + str(fun))
 
 def parse(str):
-    return pexpr.parseString(str)
+    return pexpr.parseString(str).asList()
 
 def parse_and_eval(str, env = [{}]):
     t = parse(str)
-    for e in t.asList():
+    for e in t:
         e = eval(e, env)
     return e

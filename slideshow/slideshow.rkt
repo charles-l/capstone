@@ -204,6 +204,14 @@ pexpr << (pdecl + pexpr_ |
                    (format "print(~a)" str)) print-source))
 
 (slide
+  (para (pieval "parse('if true: a; b')"))
+  (para (pieval "parse('begin{f(); g()}')"))
+  (para (pieval "parse('a = 2')"))
+  (para (pieval "parse('a = b = false')"))
+  )
+
+
+(slide
   (vl-append
     (tt "def eval(expr, env):")
     (tt "  if is_literal(expr):")
@@ -300,8 +308,14 @@ pexpr << (pdecl + pexpr_ |
     (para (pieval (format "parse('~a')" (string-replace prog "\n" "")) #f))
     (blank-line)
 
+    (tt "# with the python functions")
+    (code "[{'isone': lambda a: a == 1},
+ {'mul': lambda a, b: a * b},
+ {'sub1': lambda a: a - 1},
+ {'print': print}]")
+
     (tt "# and evals to ... ")
-    (para (pieval evalstr #t (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
+    (para (pieval evalstr #f (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
 
 (slide
   (para #:align 'center (t "It's a real programming language!") (small (t "ish")))

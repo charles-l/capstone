@@ -31,13 +31,17 @@
   (item "Programmer to programmer"))
 
 (slide
+  (bt "English can be ambigious")
+  (t "Time flies like an arrow; fruit flies like a banana"))
+
+(slide
   (bt "Why should you care?")
   'next
   (item "Reason about errors")
   'next
   (item "Understand performance")
   'next
-  (item "DSLs")
+  (item "Domain Specific Language (DSL)")
   'next
   (item "Build your own!"))
 
@@ -56,7 +60,7 @@
       (bt "Interpreter")
       (reveal 1 (item "Dynamically executes code"))
       (reveal 2 (item "Slow"))
-      (reveal 3 (item "More debug/runtime info")))
+      (reveal 3 (item "More debug/runtime info                           ")))
     (vc-append 20
       (bt "Compiler")
       (reveal 1 (item "Generates executable"))
@@ -68,6 +72,36 @@
 
 (slide
   (para "The process of converting syntax to a graph structure using a formal grammar"))
+
+(slide
+  (t "Grammars can be ambigious")
+  (tt "1 + 2 * 3")
+  'next
+  (graphviz "digraph G {
+            rank=\"same\"
+            ordering=out;
+            pl [label=\"+\"];
+            ti [label=\"*\"];
+            one [label=\"1\"];
+            two [label=\"2\"];
+            three [label=\"3\"];
+            pl -> one;
+            pl -> ti -> two;
+            ti -> three;
+            }")
+  (graphviz "digraph G {
+            rank=\"same\"
+            ordering=out;
+            pl [label=\"+\"];
+            ti [label=\"*\"];
+            one [label=\"1\"];
+            two [label=\"2\"];
+            three [label=\"3\"];
+            ti -> pl -> one;
+            pl -> two;
+            ti -> three;
+            }")
+                      )
 
 (slide
   (tt "printf(\"my number is %d\", num);")
@@ -96,18 +130,19 @@
   (para
     (vl-append
       (tt "parse(char, \"woot\") => 'w'")
-      (tt "parse(num, \"13\") => 1")))
+      (tt "parse(digit, \"13\") => 1")))
   'next
-  (para (tt "parse(num, \"asdf\") => error ...")))
+  (para (tt "parse(digit, \"asdf\") => error ...")))
 
 (slide
   (para
     (tt "parse(many(char), \"hax0r\") => \"hax\"")
-    (tt "parse(many(or(char, num)), \"h0w t0 b a l33t hax0r?\")")
+    (tt "parse(many(or(char, digit)), \"h0w t0 b a l33t hax0r?\")")
     (tt " => \"h0w\"")
     (tt "parse(many(word), \"h0w t0 b a l33t hax0r?\")")
     (tt " => [\"h0w\", \"t0\", \"b\", \"a\", \"l33t\", \"hax0r\", \"?\"]")))
 
+; Lists of lists are trees
 (slide
   (para
     (tt "parse(expr, \"printf(\"my number is %d\", num);")
@@ -130,13 +165,87 @@
   (bt "Interpreters"))
 
 (slide
-  (para "In truth, there aren't many pure interpreters anymore"))
+  (para "Most interpreters are like compilers")
+  'next
+  (para "The compilation pass generates bytecode"))
 
 (slide
   (bitmap "its-a-lie.jpg"))
 
 (slide
-  (para "Most modern \"interpreters\" compile to bytecode (interpreted by a VM)"))
+  (para "Most modern \"interpreters\" compile to bytecode (interpreted by a virtual machine (VM))"))
+
+(slide
+  (para (tt "push 4"))
+  (para (tt "push 3"))
+  (para (tt "push 2"))
+  (para (tt "add"))
+  (para (tt "mul"))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \" | | | | ... \"];
+            }"))
+
+(slide
+  (para (tt "push 3"))
+  (para (tt "push 2"))
+  (para (tt "add"))
+  (para (tt "mul"))
+  (para (tt ""))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \"4| | | | ... \"];
+            }"))
+
+(slide
+  (para (tt "push 2"))
+  (para (tt "add"))
+  (para (tt "mul"))
+  (para (tt ""))
+  (para (tt ""))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \"3|4| | | ... \"];
+            }"))
+
+(slide
+  (para (tt "add"))
+  (para (tt "mul"))
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \"2|3|4| | ... \"];
+            }"))
+
+(slide
+  (para (tt "mul"))
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \"5|4| | | ... \"];
+            }"))
+
+(slide
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (para (tt ""))
+  (graphviz "digraph G {
+            rankdir=LR;
+            node [shape=record, width=0.4];
+            a [label = \"20| | | | ... \"];
+            }"))
 
 (slide
   (item "Java")
@@ -318,7 +427,7 @@ pexpr << (pdecl + pexpr_ |
     (para (pieval evalstr #f (format "prog = \"~a\"" (string-replace prog "\n" ""))))))
 
 (slide
-  (para #:align 'center (t "It's a real programming language!") (small (t "ish")))
+  (para #:align 'center (t "We built a real programming language!") (small (t "ish")))
   (bitmap "mindblown.jpg"))
 
 (slide
@@ -328,10 +437,10 @@ pexpr << (pdecl + pexpr_ |
 (slide
   (bt "Further resources")
   (item "Structure and Interpretation of Computer Programs (The Wizard Book)")
-  (item "Types and Programming Languages")
   (item "Paradigms of Artificial Intelligence Programming")
-  (item "Compilers: Principles, Tools, and Techniques (The Dragon Book)")
   (item "Racket (programming language)")
+  (item "Compilers: Principles, Tools, and Techniques (The Dragon Book)")
+  (item "Types and Programming Languages")
   (item "https://github.com/charles-l/capstone and https://github.com/charles-l/comp"))
 
 (slide

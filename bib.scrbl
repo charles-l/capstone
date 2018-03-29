@@ -44,13 +44,19 @@
         #:key "Church, 1932"
         #:title "A Set of Postulates for the Foundation of Logic."
         #:is-book? #f
-        #:author "Alonzo CHurch")
+        #:author "Alonzo Church")
 
   (bib-entry
       #:key "Yunhe"
       #:title "Virtual Machine Showdown: Stack Versus Registers"
       #:is-book? #f
       #:author "Yunhe Shi, David Gregg, Andrew Beatty and M. Anton Ertl")
+
+  (bib-entry
+      #:key "Flanagan, 1993"
+      #:title "The Essence of Compiling with Continuations"
+      #:is-book? #f
+      #:author "Cormac Flanagan, Amr Sabry, Bruce F. Duba and Matthias Felleisen")
   )
 
 @;{https://arxiv.org/pdf/1611.00467.pdf}

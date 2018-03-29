@@ -2,7 +2,8 @@
 
 (require scribble/base
          scribble/core
-         (only-in srfi/1 cons*))
+         (only-in srfi/1 cons*)
+         sha)
 
 (provide graphviz ttt)
 
@@ -16,12 +17,12 @@
 
 
 (define (graphviz . str)
-  (let* ((f (make-temporary-file "rkttmp~a.png"))
-         (cmd (~a "printf \"" (string-replace (apply string-append str) "\""
-                                              "\\\"")  "\" | dot -Tpng > " f)))
+  (define filehash (bytes->hex-string (sha1 (string->bytes/locale (string-join str)))))
+  (define file (format "/tmp/rkttmp~a.png" filehash))
+  (unless (file-exists? file)
+    (define cmd (~a "printf \"" (string-replace (apply string-append str) "\""
+                                                "\\\"")  "\" | dot -Tpng > " file))
     (display cmd)
     (newline)
     (system cmd)
-    (image (~a f) #:scale 0.5)))
-
-(system "rm rkttmp*.png") ; do cleanup
+    (image (~a file) #:scale 0.5)))

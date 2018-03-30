@@ -1,6 +1,7 @@
 #lang scribble/lp2
 @(require scribble-code-examples)
 @(require scribble-code-examples)
+@(require scribble-math)
 
 This final portion of the book will focus on compilers. Compilers convert the
 source language to a target language (generally assembly or VM bytecode). The
@@ -125,7 +126,25 @@ In this example the variables are named with temporaries since a human
 isn't expected to write in ANF since it's an automated transformation in
 the compiler.
 
-In the compiler implementation we combine desugaring with
+@subsection{α-conversion}
+
+In λ-calculus, two programs may be equivalent, despite having different
+binding names. For instance, the identify function, is the identify
+function no matter what the argument is named.
+
+@$${\lambda i \; . \; i}
+@$${\lambda j \; . \; j}
+
+These functions are equivalent, and we can make them completely equivalent
+by transforming them using α-conversion (alpha conversion). For instance,
+if we rename @$${j} to @$${i} in the second example,
+
+@$${\lambda j \; . \; j \Rightarrow \lambda i \; . \; i}
+
+it is equivalent to the first equation.
+
+α-conversion is not only useful for checking equivalence. It can also be
+used to rename variables.
 
 @subsection{Optimization passes}
 

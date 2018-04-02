@@ -43,7 +43,7 @@ digits.
      (parser
       (error
        (lambda (tok-ok? tok-name tok-value)
-        (error "parsing failed" tok-name tok-value)))
+        (error "parsing failed, unexpected " tok-name tok-value)))
       (start number)
       (tokens keyword-tokens value-tokens)
       (end EOF)
@@ -93,7 +93,7 @@ a bit clearer):
   (tokens keyword-tokens value-tokens)
   (error
    (lambda (tok-ok? tok-name tok-value)
-    (error "parsing failed" tok-name tok-value)))
+    (error "parsing failed, unexpected" tok-name tok-value)))
   (start func-def)
   (end EOF)
   <precs>
@@ -138,6 +138,8 @@ We'll start by defining variable assignment.
 @chunk[<expr>
   (expr
    ((ID = expr) (list 'assign $1 $3))
+   ((literal) $1)
+   ((ID) $1)
    <binops>
    <function-call>)]
 
@@ -188,15 +190,15 @@ By matching an expression @italic{and} a comma, followed by a recursive match of
 the expression list again, we can determine when to stop. When the token after
 the next expression is @italic{not} a comma, we can terminate our parsing.
 
-Now we must define our rules for statements - rules for parsing instructions that must
+Now we must define our rules for statements which are essentially expressions that must
 exist on their own semi-colon-segmented line.
 
 @chunk[<stmt>
     (stmt
-     ((var-decl) $1)
-     <return-stmt>
      <if-stmt>
-     <for-loop>
+     <return-stmt>
+     ((var-decl SEMI) $1)
+     ((expr SEMI) $1)
      )]
 
 Variable declaration simply parses two types, the first being the type and the
@@ -212,15 +214,11 @@ Return statements are straightforward as well - they're simply the return
 keyword followed by an expression.
 
 @chunk[<return-stmt>
-((return expr) (list 'return $2))
+((return expr SEMI) (list 'return $2))
 ]
 
-@tt{for} and @tt{if} statements are mostly straightforward despite being made up
+@tt{if} statements are straightforward despite being made up
 of more tokens than any most other rules.
-
-@chunk[<for-loop>
-     ((for LPAREN expr SEMI expr SEMI expr LSQUARE stmt-list RSQUARE)
-      (list 'for $3 $5 $7 $9))]
 
 @chunk[<if-stmt>
      ((if LPAREN expr RPAREN LBRACE stmt-list RBRACE maybe-else)
@@ -241,9 +239,8 @@ along with the block of statements (from the @tt{stmt-list} rule).
 
 @chunk[<stmt-list>
     (stmt-list
-     ((stmt SEMI) (list $1))
-     ((stmt SEMI stmt-list) (cons $1 $3))
-	 (() (list)))]
+     (() (list))
+     ((stmt stmt-list) (cons $1 $2)))]
 
 This rule is actually where whey parse the semi colons. We expect
 statements to be followed by a semicolon, and if the next token is anything
@@ -274,9 +271,14 @@ like we defined early.
 @code-examples[#:lang "at-exp racket" #:context #'here #:eval ev]|{
 	(with-input-from-string
 	  "int main() {
-	  	int x = rand(0, 3);
-	  	printf(\"my number is %d\", x);
-	  }"
+        int x;
+        x = rand(0, 3);
+        int i;
+        i = 2;
+        if(i < x) {
+            printf(\"my number is %d\", x);
+        }
+      }"
 	  (lambda ()
 		(c-parser (lambda () (c-lexer (current-input-port))))))
 }|

@@ -62,7 +62,7 @@ value of the word in the source code.
 
 @chunk[<keyword-tokens>
 (define-empty-tokens keyword-tokens
- (if else for * / + - < > = += -= return
+ (if else * / + - < > = += -= return
   COMMA POUND SEMI LBRACE RBRACE LPAREN RPAREN LSQUARE RSQUARE EOF))
 ]
 
@@ -98,7 +98,7 @@ immediately. The @tt{lex} tool automatically creates a variable called
 @tt{lexeme} to store the value of the most recently read string.
 
 @chunk[<match-keyword-tokens>
-    ((:or "else" "for" "*" "/" "+" "-" "<" ">" "=" "+=" "-=" "return")
+    ((:or "if" "else" "*" "/" "+" "-" "<" ">" "=" "+=" "-=" "return")
      (string->symbol lexeme)) ]
 
 Now we'll write the rules for matching the other tokens.

@@ -36,7 +36,7 @@
     #:author "Stephen Chang"
     #:url "http://docs.racket-lang.org/parsack/index.html")
   (bib-entry
-      #:key "McCarthy Lisp"
+      #:key "McCarthy, 1978"
       #:title "A Micro-manual for Lisp - Not the Whole Truth"
       #:is-book? #f
       #:author "John McCarthy")
@@ -57,6 +57,16 @@
       #:title "The Essence of Compiling with Continuations"
       #:is-book? #f
       #:author "Cormac Flanagan, Amr Sabry, Bruce F. Duba and Matthias Felleisen")
+  (bib-entry
+      #:key "Appel, 1998"
+      #:title "Modern Compiler Implementation in Java"
+      #:is-book? #t
+      #:author "Andrew W. Appel")
+  (bib-entry
+      #:key "Chomsky, 1956"
+      #:title "Three Models for the Description of Language"
+      #:is-book? #f
+      #:author "Noam Chomsky")
   )
 
 @;{https://arxiv.org/pdf/1611.00467.pdf}

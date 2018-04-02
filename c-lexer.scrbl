@@ -139,7 +139,7 @@ parsing.
         ((:seq (:+ (:/ "0" "9")) #\. (:+ (:/ "0" "9")))
          (token-DOUBLE (string->number lexeme))) ]
 
-Often in C, we expect a word for a type, variable , or function name, but
+Often in C, we expect a word for a type, variable, or function name, but
 don't know what the name will be (since it is user defined). To parse
 these types of @italic{identifiers} we can define a rule for what makes an
 identifier. A valid identifier starts with an ASCII character and has
@@ -148,7 +148,7 @@ capital letters are valid in C's grammar as well, but we'll leave them out
 for simplicity).
 
 @chunk[<id>
-    ((:seq (:/ "a" "z") (:+ (:or (:/ "a" "z") (:/ "0" "9"))))
+    ((:seq (:/ "a" "z") (:* (:or (:/ "a" "z") (:/ "0" "9"))))
      (token-ID lexeme))]
 
 C characters literals are notated by a quote followed by an ASCII

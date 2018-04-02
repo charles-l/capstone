@@ -37,6 +37,7 @@ digits.
 @(ev '(require br-parser-tools/yacc))
 @(ev '(require br-parser-tools/lex))
 @(ev '(require "c-lexer.scrbl"))
+@(ev '(require "c-parser.scrbl"))
 @code-examples[#:lang "racket" #:context #'here #:eval ev]{
     (define num-parser
      (parser
@@ -86,6 +87,7 @@ a bit clearer):
 
 @chunk[<*>
 <includes>
+(provide c-parser)
 (define c-parser
  (parser
   (tokens keyword-tokens value-tokens)
@@ -103,9 +105,7 @@ a bit clearer):
    <func-def>
    <arg-list>
    <stmt>
-   <if-stmt>
    <maybe-else>
-   <for-loop>
    <stmt-list>)))]
 
 String, character, numeric, and other hardcoded values in a program are often
@@ -139,7 +139,7 @@ We'll start by defining variable assignment.
   (expr
    ((ID = expr) (list 'assign $1 $3))
    <binops>
-   <function-call-rule>)]
+   <function-call>)]
 
 The assignment rule is slightly more sophisticated than the rules shown before.
 First, it's self-referencing and recursive. Note that the recursion is on the
@@ -162,13 +162,15 @@ nodes differentiable).
    ((expr -= expr) (list '-= $1 $3))
 ]
 
-TODO: explain why there's no left-recursion
+This grammar employs left-recursion, since it is allowed in @tt{yacc}.
+This is because @tt{yacc} is a bottom-up parser, so left-recursion doesn't
+need to be eliminated.
 
 And finally, we add a function call rule which references a rule we'll define
 next for expression lists.
 
-@chunk[<function-call-rule>
-((ID LPAREN expr-list RPAREN))
+@chunk[<function-call>
+((ID LPAREN expr-list RPAREN) (cons $1 $3))
 ]
 
 That's the last rule for parsing expressions, so we'll look at expression lists
@@ -178,8 +180,9 @@ list.
 
 @chunk[<expr-list>
   (expr-list
-   (((expr COMMA expr-list) (cons $1 $3))
-    ((expr) (list $1))))]
+   ((expr COMMA expr-list) (cons $1 $3))
+   ((expr) (list $1))
+   (() (list)))]
 
 By matching an expression @italic{and} a comma, followed by a recursive match of
 the expression list again, we can determine when to stop. When the token after
@@ -190,10 +193,10 @@ exist on their own semi-colon-segmented line.
 
 @chunk[<stmt>
     (stmt
-     (var-decl $1)
+     ((var-decl) $1)
      <return-stmt>
      <if-stmt>
-     <for-stmt>
+     <for-loop>
      )]
 
 Variable declaration simply parses two types, the first being the type and the
@@ -215,15 +218,13 @@ keyword followed by an expression.
 @tt{for} and @tt{if} statements are mostly straightforward despite being made up
 of more tokens than any most other rules.
 
-@chunk[<for-stmt>
-     ; for loop
+@chunk[<for-loop>
      ((for LPAREN expr SEMI expr SEMI expr LSQUARE stmt-list RSQUARE)
       (list 'for $3 $5 $7 $9))]
 
 @chunk[<if-stmt>
-     ; if statement
-     ((IF LPAREN expr RPAREN LBRACE stmt-list RBRACE maybe-else)
-      (append (list 'if expr stmt-list) maybe-else))]
+     ((if LPAREN expr RPAREN LBRACE stmt-list RBRACE maybe-else)
+      (append (list 'if $3 $6) $8))]
 
 @tt{if} statements are odd from the perspective that they @italic{might} have an
 else statement, which is why the rule to parse them is called "maybe-else."
@@ -241,10 +242,10 @@ along with the block of statements (from the @tt{stmt-list} rule).
 @chunk[<stmt-list>
     (stmt-list
      ((stmt SEMI) (list $1))
-     ((stmt SEMI stmt-list) (cons $1 $3)))]
+     ((stmt SEMI stmt-list) (cons $1 $3))
+	 (() (list)))]
 
-This rule is actually where whey parse the semi colons. Again, we don't have to
-worry about left-recursion for the [TODO: INSERT REASON] stated above. We expect
+This rule is actually where whey parse the semi colons. We expect
 statements to be followed by a semicolon, and if the next token is anything
 other than a statement, the rule will terminate parsing.
 
@@ -258,17 +259,24 @@ tokens than the other rules) and also returns a tagged list.
 @chunk[<func-def>
   (func-def
    ((ID ID LPAREN arg-list RPAREN LBRACE stmt-list RBRACE)
-   (list $1 $2 $4 $7)))]
+    (list $1 $2 $4 $7)))]
 
 The final rule is the argument list helper which expects a @tt{var-decl} pair
 like we defined early.
 
 @chunk[<arg-list>
   (arg-list
-   ((var-decl 'COMMA arg-list) (cons $1 $3))
-   ((var-decl) (list $1)))]
+   ((var-decl COMMA arg-list) (cons $1 $3))
+   ((var-decl) (list $1))
+   (() (list)))]
 
 
-TODO: demo
-
-
+@code-examples[#:lang "at-exp racket" #:context #'here #:eval ev]|{
+	(with-input-from-string
+	  "int main() {
+	  	int x = rand(0, 3);
+	  	printf(\"my number is %d\", x);
+	  }"
+	  (lambda ()
+		(c-parser (lambda () (c-lexer (current-input-port))))))
+}|

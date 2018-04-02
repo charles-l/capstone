@@ -24,5 +24,5 @@
                                                 "\\\"")  "\" | dot -Tpng > " file))
     (display cmd)
     (newline)
-    (system cmd)
-    (image (~a file) #:scale 0.5)))
+    (system cmd))
+  (image (~a file) #:scale 0.5))

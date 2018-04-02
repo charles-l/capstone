@@ -9,7 +9,7 @@ evaluate code. Later chapters implement the interpreter in terms of a virtual
 machine.
 
 However, the original Lisp interpreter written in Lisp is only a single page
-(reproduced and ported to Racket below) @cite{McCarthy Lisp}:
+(reproduced and ported to Racket below) @cite{McCarthy, 1978}:
 
 @code-examples[#:lang "racket" #:context #'here]{
     (define (atom? x) (not (list? x)))

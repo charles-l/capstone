@@ -2,6 +2,7 @@
 @(require scribble-code-examples)
 @(require scribble-code-examples)
 @(require scribble-math)
+@(require "util.rkt")
 
 This final portion of the book will focus on compilers. Compilers convert the
 source language to a target language (generally assembly or VM bytecode). The
@@ -117,7 +118,7 @@ If we were to rewrite it in ANF:
        (if t3
 	1
 	(let ((t4 (- n 1)) (t5 (- n 2)))
-	 (let ((t6 (fib t4)) (t7 (fib t5)))
+	 (let ((t6 (anf-fib t4)) (t7 (anf-fib t5)))
 	  (+ t6 t7)))))))
     (anf-fib 10)
 }|
@@ -125,6 +126,48 @@ If we were to rewrite it in ANF:
 In this example the variables are named with temporaries since a human
 isn't expected to write in ANF since it's an automated transformation in
 the compiler.
+
+The Scheme compiler we implement will include a pass that converts the
+program into ANF form. It is implemented recursively by ensuring that
+subexpressions are eliminated and replaced with temporary variables (these
+temporary variable names are generated with @tt{(gensym)}, a built-in
+Racket function that generates fresh variable names).
+
+@chunk[<convert-to-anf>
+(define-pass convert-to-anf : L1 (ir) -> L1.1 ()
+ (definitions
+  (define (value? m)
+   (match m
+    ((? constant?) #t)
+    ((? variable?) #t)
+    (else #f)))
+  (with-output-language (L1.1 Expr)
+   (define (maybe-normalize e gen-body)
+    (if (value? e)
+     (gen-body e)
+     (let ((tmp-var (gensym)))
+      `(let ,tmp-var ,(Expr e)
+	  ,(gen-body tmp-var)))))
+   (define (maybe-normalize* e* gen-body)
+    (match e*
+     ('() (gen-body '()))
+     (`(,e . ,rest)
+      (maybe-normalize e
+       (λ (t)
+	(maybe-normalize* rest
+	 (λ (t*)
+	  (gen-body (cons t t*)))))))))))
+    (Expr : Expr (ir) -> Expr ()
+     ((if ,e0 ,[e1] ,[e2])
+      (maybe-normalize e0
+       (λ (v)
+	`(if ,v ,e1 ,e2))))
+     ((,e0 ,e1 ...)
+      (maybe-normalize e0 (λ (t)
+			   (maybe-normalize* e1
+			    (λ (t*)
+			     `(,t ,t* ...))))))))
+]
 
 @subsection{α-conversion}
 
@@ -135,22 +178,168 @@ function no matter what the argument is named.
 @$${\lambda i \; . \; i}
 @$${\lambda j \; . \; j}
 
-These functions are equivalent, and we can make them completely equivalent
-by transforming them using α-conversion (alpha conversion). For instance,
-if we rename @$${j} to @$${i} in the second example,
+These functions are α-equivalent (i.e. they're semantically equivalent),
+and we can make them syntactically equivalent by transforming them using
+α-conversion (alpha conversion). For instance, if we rename @${j} to
+@${i} in the second example,
 
 @$${\lambda j \; . \; j \Rightarrow \lambda i \; . \; i}
 
 it is equivalent to the first equation.
 
 α-conversion is not only useful for checking equivalence. It can also be
-used to rename variables.
+used to rename variables. When variables are shadowed, the order in which
+they appear is significant.
 
-@subsection{Optimization passes}
+@$${\lambda x, y \; . \; ((\lambda x \; . \; x) \; y) + x}
+
+To prevent later passes from having to track environment information to
+properly shadow variables, α-conversion is done to ensure each variable
+name is unique. For instance, the previous expression could be converted
+into the following to differentiate between shadowed variables:
+
+@$${\lambda x.0, y \; . \; ((\lambda x.1 \; . \; x.1) \; y) + x.0}
+
+The pass could be implemented as follows (this pass also does basic
+desugaring):
+
+@chunk[<desugar-and-alpha-conversion>
+(define-pass parse-and-desugar : * (e) -> L0 ()
+ (definitions
+  (define (in-env? env e)
+   (hash-has-key? env e))
+  (define (extend-env env e)
+   (if (in-env? env e)
+    (hash-set env e (add1 (hash-ref env e)))
+    (hash-set env e 0)))
+  (define (var-name env e)
+   (if (%name? e)
+    e
+    (string->symbol
+     (string-append
+      (symbol->string e)
+      "."
+      (number->string (hash-ref env e))))))
+  (define (maybe-beginify e)
+   (if (= (length e) 1)
+    (car e)
+    (cons 'begin e)))
+  (define (Expr* e* env)
+   (map (curryr Expr env) e*))
+    (with-output-language (L0 Expr)
+     (define (expand-let let-e env)
+      (match let-e
+       (`(let ,bindings ,body ...)
+	(let ((env* (foldl
+		     (lambda (n e) (extend-env e (car n)))
+		     env
+		     bindings)))
+	 (define (expand-bindings b)
+	  (match b
+	   ('() (Expr (maybe-beginify body) env*))
+	   (`((,x : ,t ,e) . ,rest)
+	    (unless (or (variable? x) (type? t))
+	     (error "let binding is invalid" `(,x : ,t)))
+	    `(let ,(var-name env* x) ,t ,(Expr e env)
+		,(expand-bindings rest)))))
+	 (expand-bindings bindings)))
+       (else
+	(error "invalid let form" let-e))))))
+(Expr : * (e env) -> Expr ()
+ (match e
+  ((? constant?) e)
+  ((? variable?) (var-name env e))
+  (`(begin ,exprs ...)
+   (let ((e (Expr* exprs env)))
+    `(begin ,(drop-right e 1) ... ,(last e))))
+  (`(if ,a ,b ,c)
+   `(if ,(Expr a env) ,(Expr b env) ,(Expr c env)))
+  (`(,(or 'lambda 'λ) ,type ,args ,body ...)
+   (when (check-duplicates args)
+    (error "duplicate arg names"))
+   (let ((env* (foldl
+		(lambda (n e) (extend-env e n))
+		env
+		args)))
+    `(λ ,type (,args ...) ,(Expr (maybe-beginify body) env*))))
+  (`(let ,_ ...)
+   (expand-let e env))
+  (`(,f ,args ...)
+   `(,(Expr f env) ,(Expr* args env) ...))))
+    (Expr e (hash)))]
+
+
+@subsection{Type checking}
+
+Since the Scheme we implement includes type information in the source code
+we will include a pass that does basic type-checking, and discards type
+information for later passes (since it's irrelevent in later stages in the
+pipeline). Type-checking can be implemented as a sort of
+pseudo-interpreter that evaluates and checks type information in the
+program.
+
+Type checking will track types in a symbol-table, which is passed along as
+the @tt{env}.
+
+@chunk[<type-check>
+(define-pass type-check-and-discard-type-info : L0 (ir) -> L1 ()
+ (definitions
+  (define (check env x t)
+   (let ((xt (infer x env)))
+    (unless (equal? xt t)
+     (error "expected" x "to be of type" t "but was" xt))
+    xt)))
+ (infer : Expr (ir env) -> * (type)
+  (,x (env-lookup-type env x))
+  (,c (match c
+       ((? number?) 'int)
+       ((? boolean?) 'bool)
+       ((? char?) 'char)))
+  ((begin ,e* ... ,e) (infer e env))
+  ((if ,e0 ,e1 ,e2)
+   (check env e0 'bool)
+   (let ((t1 (infer e1 env)) (t2 (infer e2 env)))
+    (unless (equal? t1 t2)
+     (error "if statement paths must return same type, but got" t1 "and" t2))
+    t1))
+  ((λ ,t (,x* ...) ,body)
+   (let ((env* (foldl
+		(lambda (c e) (env-add e (car c) (cdr c)))
+		env
+		(map (lambda (n t) (cons n (binding n t)))
+		 x*
+		 (drop-right (cdr t) 1)))))
+    (check env* body (last t))
+    t))
+    ((let ,x ,t ,e ,body)
+     (let ((env* (env-add env x (binding x t))))
+      (check env* e t)
+      (infer body env*)))
+    ((,e0 ,e1 ...)
+     (let* ((fty (infer e0 env)) (rargsty (map (curryr infer env) e1))
+	    (argsty (drop-right (cdr fty) 1)))
+      (unless (equal? argsty rargsty)
+       (error "function has incorrect type - expecting args of type"
+	argsty
+	"but got"
+	rargsty
+	"for"
+	(cons e0 e1)))
+      (last fty))))
+    (Expr : Expr (ir env) -> Expr ()
+     ((let ,x ,t ,[e] ,body)
+      `(let ,x ,e
+	  ,(Expr body (env-add env x (binding x t)))))
+     ((λ ,t (,x* ...) ,[body])
+      `(λ (,x* ...) ,body)))
+    (infer ir (hash))
+    (Expr ir (hash)))]
+
+@subsection{Functional compiler optimizations}
 
 Most of the passes in a real-world compiler's backend are dedicated to code
-optimization. The term code optimization is a bit misleading, since it technically
-doesn't result in optimal code, just code that may be more performant because of
+optimization. The term code optimization is a bit misleading, since it
+doesn't result in optimal code. It generates code that may be more performant because of
 transformations based on heuristics. However, these heuristics can be valuable for
 improving the runtime performance of the binaries produced by the compiler.
 
@@ -260,7 +449,7 @@ and constructed 4 intermediate lists that it threw away. This is a hugely valuab
 optimization for functional languages since it has the potential to massively cut down on
 computation time for processing large lists.
 
-@subsubsection{Various other optimization techniques}
+@subsection{Various other optimization techniques}
 
 There are a plethora of other optimization techniques utilized
 by standard imperative compilers. Since they tend to be smaller, and less
@@ -400,13 +589,201 @@ Could be rewritten,
 
 Which is far more performant since we've fully eliminated branching.
 
-@subsection{Code generation}
+TODO lambda lifting
+
+@subsection{Code generation for x86}
 
 Finally, after transforming, tweaking, and pruning our original source code, we've now
 reached the point in the process where we can start generating actual machine code for
 our target architecture.
 
-@subsubsection{From A-normal form to assembly}
+@subsubsection{A brief review of assembly}
 
-@subsubsection{Peephole Optimizations}
+Assembly is the lowest level series of an instructions a programmer can
+provide to a computer. Most CPU's have hundreds (or thousands) of
+instructions for performing mathematical, boolean algebra, memory
+manipulation, and code branching operations. For the x86 architecture,
+most of these instructions can be safely ignored as they're only used in
+rare cases, or are kept for backwards compatibility.
 
+Despite the scores of instructions available, CPU's are fundamentally the
+same as pocket calculators, just with more memory, and more conditional
+logic. CPU's have a set of @italic{registers} which are each capable of
+holding a few dozen bits. For instance, 32-bit machines primarily have
+32-bit registers, 64-bit machines have 64-bit registers.
+
+Variables in assembly are just memory locations. There is no name
+assocated with a variable binding, so once a program is compiled to
+machine code, variable names are lost. Global variables are stored in
+static locations in memory (generally precomputed before compilation), and
+local variables are stored on the runtime stack.
+
+The instructions that a program is comprised of are stored in memory in
+the "text" segment. An instruction pointer points at the current machine
+code instruction to execute, and can be moved to an arbitrary instruction
+to perform a jump (also known as a branch). Jumps are how loops and
+conditional expressions are implemented. A loop jumps back to a prior
+instruction and executes the same instructions again, and conditionals are
+implemented by choosing which set of instructions to execute depending on
+a condition.
+
+CPU operations are performed on registers, and must load data from memory
+into a register before using it. Once an operation is completed and the
+data needs to be stored for later use, it will be put back into a memory
+location. Some registers are special purpose, and must be used when using
+certain instructions, while the rest are general purpose registers for
+storing and transforming temporary values with most instructions.
+
+32-bit register names are prefixed with an "e". In our compiler, the
+immediate value (i.e. the current value we return from each expression) is
+stored in @tt{%eax}. @tt{%esp} (stack pointer) and @tt{%ebp} (base
+pointer) are important registers since they track memory address relevant
+to the current stack frame. @tt{%eip} is the instruction pointer register,
+and can be manipulated to perform jumps.
+
+The necessary instructions for our compiler are a small subset of the
+instructions available on an x86 machine.
+
+The @tt{mov} instruction can move 4-bytes constants and values between
+registers and memory locations. For instance, @tt{movl $4, %eax} means
+"move the long (i.e. 4-byte) constant 4 into the @tt{%eax} register" and
+@tt{movl -4(%ebp), %ebx} means "move the long value stored at the memory
+location @tt{%ebp - 4} to @tt{%ebx}."
+
+Conditionals can't be implemented without comparisons, which is when the
+comparison instruction @tt{cmp} is used. @tt{cmp} compares its two
+arguments and sets a flag in the CPU depending on whether the first value
+is equal to, less than, or greater than the second value.
+
+However, the @tt{cmp} instruction doesn't change @tt{%eip} to branch. The
+instruction directly after determines the jump. @tt{jz} will jump if the
+@tt{cmp} results were equal. @tt{jne} jumps if they're not equal, @tt{jg}
+jumps if greater than. Unconditional jumps that don't rely on the result
+of a @tt{cmp} can be made with the @tt{jmp} instruction.
+
+@tt{push} and @tt{pop} operate on the runtime stack, and can be used to
+save a registers value to, or restore it from the stack. Underneath the
+hood they actually juggle register values and keep track of the top of the
+stack with @tt{%esp}.
+
+@tt{call} and @tt{ret} enforce C-calling convention style function calls
+and function returns. Some extra boilerplate is required to save and
+restore the @tt{%ebp} and @tt{%esp} registers, but @tt{call} and @tt{ret}
+track return addresses and ensure the proper value is returned from the
+function when it completes.
+
+We'll be targeting the x86 architecture, since it is one of the most
+prevalent architectures for desktop computers. x86-64 is similar, but has
+larger 8-byte registers and passes arguments through registers rather than
+pushing them onto the stack when calling functions. However, x86-64 is
+backwards compatible with x86 (32-bit), so we'll use 32-bit conventions.
+It isn't necessary to use C calling conventions, and a high-performance
+functional compiler likely would use a custom convention. However, by
+using C calling conventions, we're able to use the @tt{call} instruction,
+and interop with C code.
+
+The code generation rules are trivial because we've transformed the code
+into a format that is simple to translate. The structure of the code is
+consistently linear, meaning each expression clearly translates to a few
+assembly instructions.
+
+@graphviz{
+    digraph G {
+	nodesep=.05;
+	rankdir=LR;
+	node [shape=record,width=.4,height=.1];
+	node0 [label = "<a3>...|argument 3|argument 2|argument 1|return address|<a0>ebp|local 1|local 2|<a1>local 3|<a4>...",height=2.0];
+	ebp [shape="plaintext"];
+	esp [shape="plaintext"];
+	"higher addresses" [shape="plaintext"];
+	ebp -> node0:a0;
+	esp -> node0:a1;
+	"higher addresses" -> node0:a3:nw;
+	"lower addresses (stack grows down)" [shape="plaintext"];
+	"lower addresses (stack grows down)" -> node0:a4:sw;
+    }
+}
+
+Local variables are pushed onto the stack and can be accessed by adding
+offsets to @tt{ebp} (of 4 byte intervals for 32-bit x86). For instance, to
+access @tt{local 1} using pseudo C syntax, @tt{*(%ebp - 4)} (i.e. we
+dereference the memory location stored in %ebp minus an offset of
+4 bytes).
+
+Arguments are stored in a different portion of the stack and must be
+accessed by adding an offset to @tt{%ebp}. Of course, an extra 4 bytes
+must be added to step over the stack location that stores the return
+address.
+
+Function calls require some boilerplate to keep the stack in this
+structure.
+
+@chunk[<codegen-x86>
+(define-pass emit-asm : L2 (ir) -> * ()
+ (definitions
+  (define (frame-locals frame)
+   (filter (compose positive? cdr) frame))
+
+  (define (slot-index frame e)
+   (cond ((findf (lambda (x) (eq? (car x) e)) frame) => cdr)
+    (else (error "failed to get index for" e))))
+
+  (define (emit-immediate frame e)
+   (match e
+    ((? variable?)
+     (if (%name? e)
+      (format "$~a" (clean-%name e))
+      (format "~a(%ebp)" (- (* +word-size+ (slot-index frame e))))))
+    ((? number?) (format "$~a" e))
+    ((? boolean?) (format "$~a" (if e 1 0))))))
+
+ (Expr : Expr (ir (frame '())) -> * ()
+  (,x (printf "movl ~a, %eax\n" (emit-immediate frame x)))
+  (,c (printf "movl ~a, %eax\n" (emit-immediate frame c)))
+  ((begin ,e* ... ,e) (begin
+      (map (curryr Expr frame) e*)
+      (Expr e frame)))
+  ((if ,e0 ,e1 ,e2)
+   (let ((else-label (gensym 'else)) (end-label 'end))
+    (Expr e0 frame)
+    (printf "cmp $0, %eax\n")
+    (printf "jz ~a\n" else-label)
+    (Expr e1 frame)
+    (printf "jmp ~a\n" end-label)
+    (printf "~a:\n" else-label)
+    (Expr e2 frame)
+    (printf "~a:\n" end-label)))
+  ((let ,x ,e ,body)
+   (printf "subl $4, %esp\n")
+   (Expr e frame)
+   (let ((slot (add1 (length (frame-locals frame)))))
+    (printf "movl %eax, ~a(%ebp)\n" (- (* +word-size+ slot)))
+    (Expr body (cons (cons x slot) frame))))
+  ((lref ,x)
+   (printf "movl $~a, %eax\n" x))
+  ((,e0 ,e1 ...)
+   (Expr e0 frame)
+   (for-each (lambda (v)
+	    (printf "pushl ~a\n" (emit-immediate frame v)))
+    e1)
+   (printf "call *%eax\n")))
+  (Func : Func (l) -> * ()
+   ((label ,x (,x* ...) ,body)
+    (printf ".global ~a\n" x)
+    (printf ".type ~a @function\n" x)
+    (printf ".align 8\n")
+    (printf "~a:\n" x)
+    (printf "pushl %ebp\n")
+    (printf "movl %esp, %ebp\n")
+    (Expr body
+     (map
+    (lambda (a i)
+     (cons a (- i)))
+    x*
+    (iota (length x*) 2)))
+    (printf "movl %ebp, %esp\n")
+    (printf "popl %ebp\n")
+    (printf "ret\n")))
+  (Expr ir '())
+  (Func ir))
+]

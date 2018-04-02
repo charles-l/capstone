@@ -67,10 +67,30 @@
       #:title "Three Models for the Description of Language"
       #:is-book? #f
       #:author "Noam Chomsky")
+  (bib-entry
+      #:key "Sarkar, 2005"
+      #:title "A Nanopass Framework for Compiler Education"
+      #:is-book? #f
+      #:author "Dipanwita Sarkar, Oscar Waddell and R. Kent Dybvig")
+  (bib-entry
+      #:key "Keep, 2012"
+      #:title "A Nanopass Framework for Commercial Compiler Development"
+      #:is-book? #f
+      #:author "Andrew W. Keep")
+  (bib-entry
+      #:key "Keep, 2013"
+      #:title "A Nanopass Framework for Commercial Compiler Development"
+      #:is-book? #f
+      #:author "Andrew W. Keep and R. Kent Dybvig")
+  (bib-entry
+      #:key "nanopass-racket documentation"
+      #:title "Nanopass Framework"
+      #:is-book? #f
+      #:author "Andrew W. Keep and Leif Anderson"
+      #:url "https://docs.racket-lang.org/nanopass/index.html")
   )
 
 @;{https://arxiv.org/pdf/1611.00467.pdf}
 @;{Dragon book}
 @;{PAIP}
-@;{http://andykeep.com/pubs/dissertation.pdf}
 @;{http://library.readscheme.org/page8.html}

@@ -14,6 +14,16 @@
 
 @(table-of-contents)
 
+@section{Introduction}
+
+@subsection{Book source}
+
+Literate programming.
+
+The source for this whole book is available on GitHub (https://github.com/charles-l/capstone), with runnable code examples.
+
+@subsection{Why bother with programming language implementation?}
+
 @section{Background}
 
 @subsection{Racket}
@@ -1068,6 +1078,48 @@ and a recursively-enumerable language can be parsed with a Turing machine.
 Recursively-enumerable grammars can model human language, which have no
 restrictions on how to define rules.
 
+A context free grammar can be defined using a series of rules called
+productions. Each production @italic{derives} a @italic{terminal} or
+a @italic{non-terminal}. Terminals are the leafs of the derived tree, and
+cannot be derived any further, while non-terminals have an associated
+production rule that can derive them further. When notating grammer,
+terminals are lowercase, and non-terminals are capitalized.
+
+The symbol ε is used to notate an empty word, and the vertical bar means
+either the rule on the left of the bar or the rule on the right of the bar
+can be applied. The derivation starts with the starting symbol @tt{S}.
+
+Using these rules, we can create a grammar that generates palindromes
+in the alphabet @tt{{a, b}}, we could write.
+
+@ttt{
+    S -> aSa | bSb | a | b | ε
+}
+
+
+Using this grammar, if we wanted to generate the string @tt{aba}, we would
+derive it as,
+
+@tt{S -> aSa -> aba}
+
+To generate @tt{aabbaa},
+
+@tt{S -> aSa -> aaSaa -> aabSbaa -> aabεbaa = aabbaa}
+
+A more sophisticated example might be to define a language with an
+alphabet @tt{{a, b, c}} and we wanted to have an equal number of @tt{a}s
+and @tt{b}s followed by an arbitrary number of @tt{c}s.
+
+@ttt{
+    S -> AB
+    A -> aAb | ε
+    B -> Bc | ε
+}
+
+To generate @tt{aaabbbc} we could derive it as follows,
+
+@tt{S -> AB -> aAbB -> aaAbbB -> aaaAbbbB -> aaaεbbbB = aaabbbB -> aaabbbBc -> aaabbbεc = aaabbbc}
+
 @subsection{Lexing}
 
 @(lp-include "c-lexer.scrbl")
@@ -1257,14 +1309,20 @@ which module will be dynamically loaded.
 
 The dynamism of JITs is quite fascinating, and its interesting how the
 interpreter can "learn" to make code faster over time. But JIT's are a
-sophisticated and advanced subject, requiring a book of their own, so this
-section will just be concluded with a brief JIT example.
+sophisticated and advanced subject, requiring a book of their own.
 
-TODO: example
+JITs attempt to take advantage of the best aspects of compliers (speed)
+and interpreters (flexibility), with a tradeoff of complexity. With
+a basic understand of interpretation, we will move onto the final portion
+of this book which focuses on compilers.
 
 @section{Compilers}
 
 @(lp-include "compiler.scrbl")
+
+@section{Conclusions}
+
+@subsection{Where to go from here}
 
 @section{References}
 

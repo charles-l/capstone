@@ -38,6 +38,142 @@ follow:
     }
 }
 
+@subsection{Nanopass framework}
+
+Compilers are convenient to architect, since they're almost all designed
+as a series of passes in a pipeline. This makes projects easy to reason
+about since the structure of the project is clear and well defined. In toy
+compilers and education courses, compiler developers will sometimes build
+micropass compilers - compilers that are composed of many small passes
+that each perform small transformations in the intermediate
+representation. However, most real-world compilers have a few
+sophisticated passes that perform significant transformations on the
+intermediate representation. This makes them difficult to understand and
+maintain over time @cite{Sarkar, 2005}.
+
+Micropass compilers are preferred since every pass can be understood,
+tweaked, and quickly replaced. However, each pass implicitly expects
+a correct input IR, and, if properly defined, may output an IR that isn't
+valid. When the error isn't caught early on in pipeline, subtly incorrect
+IRs can propagate downstream before breaking a later pass. These types of
+errors can be hard to debug in a micropass compiler, since it can be
+difficult to track down the pass that generated the invalid IR.
+
+Besides debuggablity, micropass compilers are also painfully slow. Since
+they generate a new tree with every (instead of transforming it in-place),
+each pass must re-parse the whole tree every time. This problem becomes
+apparent on large, practical projects that compile large, real-world
+codebases.
+
+The Nanopass framework is a domain specific language that attempts to
+mitigate these issues by formally defining each pass's input and output
+languages, and using an efficient record-based data structure for storing
+passes. Along with solving these problems, it also provides nice syntactic
+sugar to rid micropass compiler code of the boilerplate it sometimes
+accumulates.
+
+While primarly used for educational purposes, the nanopass framework is
+viable for real-world compilers as well. The Chez Scheme implementation is
+a Scheme implementation developed by Cisco, and is one of the most
+performant Scheme implementations available. The backend for Chez was
+recently reimplemented in nanopass @cite{Keep, 2013}, @cite{Keep, 2012},
+that generated faster executables without huge performance loss on compile
+times (which is an impressive feat considering Chez is an extremely fast
+compiler).
+
+In our implementation we will use the Nanopass framework, since it's
+a viable framework for building compilers, and defines passes in a syntax
+that's easy to understand.
+
+@(define np (make-code-eval #:lang "racket"))
+
+We'll start by looking at a language that might be the input for a pass.
+
+@code-examples[#:lang "racket" #:context #'here #:eval np]|{
+  (require nanopass/base)
+
+  (define (var? v) (symbol? v))
+  (define (literal? l) (or (string? l) (number? l)))
+
+  (define-language L0
+    (terminals
+      (var (v))
+      (literal (l)))
+    (Expr (e body)
+      v
+      l
+      (begin e* ... e)
+      (lambda (v* ...) body* ... body)
+      (e0 e1 ...)))
+}|
+
+When defining terminals, the names are significant. The name of the
+terminal expects to have an associated predicate (so @tt{var} expects
+@tt{var?} to exist and @tt{literal} expects @tt{literal?} to exist). The
+symbol in parentheses beside the variable names a metavariable which can
+be used in the non-terminal productions (e.g. the definitions inside of
+@tt{Expr}).
+
+Next we define our non-terminals, and their production rules. In this
+language we'll make it a tiny subset of Scheme. When writing production
+rules, the names are significant. Symbols like @tt{*}, @tt{$}, @tt{^} and
+numbers are ignored, but the rest of the name is significant. When using
+the @tt{v} metavariable, Nanopass will expect to find a variable and will
+ensure that it is a variable using the @tt{var?} predicate.
+
+The ellipses are used to notate that the previously listed variable is
+expected to be defined zero or more times.
+
+Now we'll consider simplifying this language so every set of multiple
+expressions (i.e. lambda bodies) are wrapped in
+a begin block if they have more than one expression.
+
+First we'll define what our target language. Since it's just a variation
+on the previous language we can extend @tt{L0} to remove multiple
+expressions for the body.
+
+@code-examples[#:lang "racket" #:context #'here #:eval np]|{
+  (define-language L1
+    (extends L0)
+    (Expr (e body)
+      (- (lambda (v* ...) body* ... body))
+      (+ (lambda (v* ...) body))))
+}|
+
+Rather than rewriting the whole language, we can extend another language,
+remove unnecessary productions (in the @tt{-} section), and add new
+productions (in the @tt{+} section).
+
+Now we'll implement the pass that does the transformation.
+
+@code-examples[#:lang "racket" #:context #'here #:eval np]|{
+  (define-pass beginify : L0 (ir) -> L1 ()
+    (definitions
+      (with-output-language (L1 Expr)
+	(define (maybe-beginify e)
+	  (if (< (length e) 2)
+	    (Expr e)
+	    `(begin ,(Expr e) ...)))))
+    (Expr : Expr (ir) -> Expr ()
+     ((lambda (,v* ...) ,body* ... ,body)
+      `(lambda (,v* ...) ,(Expr (maybe-beginify (append body* (list body))))))))
+}|
+
+Syntactically we're working with s-expressions, but in reality, nanopass
+is converting them to records internally. It's just nicer to deal with
+s-expressions, so it automatically converts records to simplify the
+transformations. @tt{with-output-language} has to surround our definition
+of @tt{maybe-begininfy} since it rebinds the quasiquote @tt{`} to make it
+generate nanopass language records.
+
+Nanopass has a plethora of other features, but this brief introduction
+will be enough to give a general understanding of what the passes do. For
+more information, read the @cite{nanopass-racket documentation} and
+@cite{Keep, 2012}
+
+For the sake of brevity, we will not be defining intermediate languages,
+and will instead focus on the transformation passes.
+
 @subsection{Desugaring}
 
 Most languages have shorthand syntax for common operations, like creating
@@ -410,6 +546,30 @@ it could partially evaluate this example to:
     '(my-new-widget price 3.18)
 }|
 
+@subsubsection{Lambda-lifting}
+
+Arguably not really an optimization, lambda-lifting is a code
+transformation that attempts to eliminate closures (and must be done to
+move functions outside of their inline definitions since defining inner
+functions in assembly doesn't make much sense). In our implementation, we
+don't support closures, lambda-lifting is a fairly simple operation.
+
+@chunk[<lambda-lifting>
+(define-pass lift-lambdas : L1.1 (ir) -> L2 ()
+             (definitions
+               (with-output-language (L2 Func)
+                                     (define (lambda->func l x* body)
+                                       `(label ,l (,x* ...) ,body))))
+             (Expr : Expr (ir) -> Expr ()
+                   ((λ (,x* ...) ,body)
+                    (let ((l (gensym 'lambda)))
+                      (lambda->func l x* (Expr body))
+                      `(lref ,l)))))
+]
+
+We define a new non-terminal type for our language called @tt{Func} and
+use it to lift any internal lambdas to the highest outer scope.
+
 @subsubsection{Deforestation}
 
 In functional programming, loops are generally discouraged since they're hard to write and
@@ -449,6 +609,27 @@ and constructed 4 intermediate lists that it threw away. This is a hugely valuab
 optimization for functional languages since it has the potential to massively cut down on
 computation time for processing large lists.
 
+@subsection{Data-flow and Control-flow analysis}
+
+Data-flow and control-flow analysis passes determine information about
+program control flow and variable usage. Commonly, data-flow and
+control-flow passes will collection information about:
+
+@itemlist[
+@item{@bold{Variable use} Relevent information includes next-use information (i.e.
+how many expressions until the variable is referenced again). This information is useful
+for register allocation (so often used variables get precedence), redundant variable elimination
+  (to remove expressions that calculate values that are overwritten without being read), and dead variable
+  elimination (which doesn't generate code for variables that are never used).}
+
+@item{@bold{Control flow} The control flow for a program can be represented using a
+directed-acyclic graph (DAG), which can be used to perform optimizations like dead-code elimination.}
+]
+
+Dataflow analyis is done in a later portion of compilation once the code
+has been converted into a format that is easier to analyze (like basic
+blocks or a-normal form).
+
 @subsection{Various other optimization techniques}
 
 There are a plethora of other optimization techniques utilized
@@ -456,8 +637,6 @@ by standard imperative compilers. Since they tend to be smaller, and less
 specific to functional languages, we'll only briefly touch on them.
 
 @subsubsection{Dead code elimination}
-
-TODO define flow analysis
 
 After doing flow analysis, we can determine the control flow for the whole program,
 allowing us to see which expression are executed. If we mark every line of code that
@@ -588,8 +767,6 @@ Could be rewritten,
 }|
 
 Which is far more performant since we've fully eliminated branching.
-
-TODO lambda lifting
 
 @subsection{Code generation for x86}
 

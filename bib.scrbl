@@ -14,8 +14,8 @@
     #:author "Robert Bruce Findler, John Clements, Cormac Flanagan, Matthew Flatt, Shriram Krishnamurthi, Paul Steckler and Matthias Felleisen"
     #:url "https://users.soe.ucsc.edu/~cormac/papers/jfp01.pdf")
   (bib-entry
-    #:key "Leijen"
-    #:title "Binary Lambda Calculus and Combinatory Logic"
+    #:key "Leijen, 2001"
+    #:title "Parsec: Direct Style Monadic Parser Combinators For The Real World"
     #:is-book? #f
     #:author "Daan Leijen and Erik Meijer"
     #:url "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper-letter.pdf")

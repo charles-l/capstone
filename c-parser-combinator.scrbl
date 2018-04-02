@@ -6,12 +6,19 @@ Since @tt{yacc} and @tt{lex} are specialized domain specific languages with
 their own grammars and syntaxes, so they stand out in source since they don't follow
 the outer language's semantics.
 
-TODO: Talk about parsec and parasck @cite{Leijen}
-
 To address this issue and make more readable code, compiler developers will
-often use @bold{parser combinators} which are libraries made of higher-order
-functions that allow them to construct parsers using functions in the semantics
-of the language the compiler is being developed in.
+use @bold{parser combinators} which are libraries made of higher-order
+functions that allow them to construct parsers using functional
+composition of higher-order functions. It's a natural way of thinking for
+functional programmers, and results in declarative code that represents
+the parser running in the host language, rather than writing a parser in
+a domain-specific language that generates hundreds of lines of unreadable
+code.
+
+Parsec was one of the first real-world parser combinators @cite{Leijen, 2001}.
+It is written in Haskell, but has inspired implementations in many other
+languages including OCaml and Racket. We'll use the Racket implementation
+(called Parsack) for our parser combinator.
 
 Parser combinators are just libraries that define a structure for a successfully
 parsed result, along with a few functions that can be combined in interesting
@@ -40,9 +47,9 @@ don't know.
   (parse (string "match this!") "match this! 1 2 3")
 }|
 
-Building a parser from these few simple functions would get tedious quickly
-though. If we can match multiple characters with regular expressions, why can't
-we do the same with a parser?
+Building a parser from these few simple functions would get tedious
+quickly though. If we can match multiple characters with regular
+expressions, why not use a function that applies a parser multiple times?
 
 This is where combinators come in. Combinators are higher-order functions that
 apply other functions together to build larger functions @cite{Tromp} (TODO:
@@ -234,23 +241,29 @@ spaces between every parser.
 
 @chunk[<intersperse-spaces>
 (require (for-syntax racket/match))
+(require (for-syntax (except-in racket string)))
 (define-syntax (intersperse-spaces stx)
-  ;FIXME
   (letrec ((intersperse
-             (match-lambda**
-               (('() _) '())
-               (((list x) _) `(,x))
-               (((cons a b) sep) (cons a (cons sep (intersperse b sep))))))))
-  (datum->syntax stx (intersperse (cdr (syntax->datum stx)) '(~ $spaces))))]
+	     (match-lambda**
+	       (('() _) '())
+	       (((list x) _) `(,x))
+	       (((cons a b) sep) (cons a (cons sep (intersperse b sep)))))))
+    (let ((l (syntax->datum stx)))
+      (match l
+	     ((list _ f args ...)
+	       (datum->syntax stx (cons f (intersperse args '(~ $spaces)))))
+	     (else
+	       (error 'intersperse-spaces "expecting function and arguments to intersperse"))))))
+]
 
 @chunk[<var-assign>
 (define $var-assign
   (>>=
-    (parser-seq
-      (intersperse-spaces
-        $identifier
-        (char #\=)
-        $expr))
+    (intersperse-spaces
+      parser-seq
+      $identifier
+      (char #\=)
+      $expr)
     (lambda (j)
       (return (list (cadr j) (car j) (caddr j))))))]
 
@@ -356,7 +369,7 @@ TODO: write macro that inserts (~ $spaces) for me
 ]
 
 @chunk[<*>
-(provide c-parser-combinator $var-assign intersperse-spaces)
+(provide parse-c)
 <includes>
 <number>
 <string>
@@ -374,7 +387,7 @@ TODO: write macro that inserts (~ $spaces) for me
 <if-stmt>
 <stmt-list>
 <func-def>
-(define (c-parser-combinator s)
+(define (parse-c s)
   (parse-result $func-def s))
 ]
 

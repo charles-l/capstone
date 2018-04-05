@@ -225,11 +225,21 @@ Likewise, parsing strings and characters is straightforward.
             (~> $anyChar)
             (char #\')))]
 
+The @tt{$identifier} rule is built into @tt{parsack} and is convenient
+for parsing variable and function identifiers. However, it returns an
+array of characters, when it would be nicer to return a string. We'll
+write a parser that does this conversion for us.
+
+@chunk[<sidentifier>
+        (define $sidentifier (>>= $identifier
+                                  (lambda (v)
+                                    (return (list->string v)))))]
+
 @chunk[<var-assign-ugly>
 (define $var-assign-ugly
  (>>=
   (parser-seq
-   $identifier
+   $sidentifier
    (~ $spaces)
    (char #\=)
    (~ $spaces)
@@ -266,14 +276,11 @@ assignment rule.
 (>>=
   (intersperse-spaces
     parser-seq
-    $identifier
+    $sidentifier
     (char #\=)
     $expr)
   (lambda (j)
-    (return (list '=
-              (list->string (car j))
-              (list->string (caddr j))))))]
-
+    (return (list '= (car j) j))))]
 
 @chunk[<binop-bad>
 (parser-compose
@@ -308,7 +315,7 @@ the @cite{Dragon book}.
 @chunk[<funcall>
 (intersperse-spaces
   parser-seq
-  (>>= $identifier (lambda (r) (return (list->string r))))
+  $sidentifier
   (between (char #\() (char #\)) (sepBy $expr (char #\,))))]
 
 @chunk[<expr>
@@ -317,9 +324,7 @@ the @cite{Dragon book}.
             (try <funcall>)
             $char
             $number
-            (>>= $identifier
-               (lambda (r)
-                 (return (list->string r))))))
+            $sidentifier))
 
         (define $expr (<or>
                         (try <var-assign>)
@@ -350,16 +355,16 @@ recursion is useful for writing powerful parsing rules.
 
 @chunk[<expr-list>
         (define $expr-list
-          (sepBy $expr (parser-seq $spaces (char ",") $spaces)))]
+          (sepBy $expr (parser-seq $spaces (char #\,) $spaces)))]
 
 @chunk[<arg-list>
   (define $arg-list
-   (sepBy (parser-seq $identifier (~ $spaces) $identifier)
-    (parser-seq $spaces (char ",") $spaces)))]
+   (sepBy (parser-seq $sidentifier (~ $spaces) $sidentifier)
+    (parser-seq $spaces (char #\,) $spaces)))]
 
 @chunk[<var-decl>
         (define $var-decl
-          (parser-seq $identifier $identifier))]
+          (parser-seq $sidentifier $sidentifier))]
 
 @chunk[<return>
         (define $return (parser-one
@@ -398,23 +403,16 @@ recursion is useful for writing powerful parsing rules.
                         (char #\;)
                         $spaces)))
   (define $stmt-list
-    (endBy $stmt (parser-seq $spaces (char #\;) $spaces)))]
+    (many1 $stmt))]
 
 @chunk[<func-def>
   (define $func-def
-    (parser-seq
-      $identifier
-      $spaces
-      $identifier
-      $spaces
-      (char #\()
-      $spaces
-      $arg-list
-      $spaces
-      (char #\)) (~ $spaces)
-      (char #\{) (~ $spaces)
-      $stmt-list
-      (char #\})
+    (intersperse-spaces
+      parser-seq
+      $sidentifier
+      $sidentifier
+      (between (char #\() (char #\)) $arg-list)
+      (between (char #\{) (char #\}) $stmt-list)
     ))
 ]
 
@@ -422,6 +420,7 @@ recursion is useful for writing powerful parsing rules.
 (provide parse-c)
 <includes>
 <intersperse-spaces>
+<sidentifier>
 
 <number>
 <string>
@@ -440,17 +439,16 @@ recursion is useful for writing powerful parsing rules.
   (parse-result $func-def s))
 ]
 
-Most of this code is fairly similar - the difference between the parser
-combinator code and the @tt{yacc} parser is the parser combinator is using most
-of the internal language features. While it requires more code in certain places
-(particularly with parsing and ignoring spaces), it's a more intuitive way of
-writing parser code for a functional programmer.
+Most of this code is similar to the @tt{yacc} parser code - the difference
+between the two is the parser combinator is using more "Racket-isms" and
+language features. While it requires more code in certain places, it's
+a more intuitive way of writing parser code for a functional programmer.
 
-While the @tt{yacc} parser was declarative as well, it didn't expose any lambdas
-or language functions to the user, instead relying on a series of sophisticated
-macros (which can make debugging more difficult). All a programmer has to
-understand to write a parser combinator is the monad bind operator (@tt{>>=})
-and a few low-level parsers (like @tt{char}). From there, they can combine and
-use any functions they want, and can even extend the functionality by adding
-their own parsers or combinators.
+While the @tt{yacc} parser was declarative as well, it didn't expose any
+lambdas or language functions to the user, instead relying on a series of
+sophisticated macros (which can make debugging more difficult). All
+a programmer has to understand to write a parser combinator is the monad
+bind operator (@tt{>>=}) and a few low-level parsers (like @tt{char}).
+From there, they can combine and use any functions they want, and can even
+extend the functionality by adding their own parsers or combinators.
 

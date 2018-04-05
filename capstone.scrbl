@@ -1045,7 +1045,7 @@ variables which can make code easier to read and understand. Naming
 variables is a difficult task, and a poorly named variable can confuse
 a reader, so removing named variables eliminates the issue.
 
-@section{Parsing and Semantic Analysis}
+@section{Parsing}
 
 Like spoken languages, programming languages have a grammar. However,
 human languages aren't strict in their rules and are full of exceptions

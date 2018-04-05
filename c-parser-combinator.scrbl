@@ -225,7 +225,7 @@ Likewise, parsing strings and characters is straightforward.
             (~> $anyChar)
             (char #\')))]
 
-The @tt{$identifier} rule is built into @tt{parsack} and is convenient
+The @tt{$identifier} rule is built into Parsack and is convenient
 for parsing variable and function identifiers. However, it returns an
 array of characters, when it would be nicer to return a string. We'll
 write a parser that does this conversion for us.
@@ -280,7 +280,7 @@ assignment rule.
     (char #\=)
     $expr)
   (lambda (j)
-    (return (list '= (car j) j))))]
+    (return (append (list '= (car j)) (caddr j)))))]
 
 @chunk[<binop-bad>
 (parser-compose
@@ -364,11 +364,25 @@ recursion is useful for writing powerful parsing rules.
 
 @chunk[<var-decl>
         (define $var-decl
-          (parser-seq $sidentifier $sidentifier))]
+          (>>=
+            (intersperse-spaces parser-seq $sidentifier $sidentifier)
+            (lambda (v)
+              (return (cons 'def v)))))]
+
+Similar to @tt{$identifier}, Parsack's built-in @tt{string} function
+returns a list of characters rather than a string. Rather than converting
+back to a string every time we call the function, we'll write another
+helper function to parse this way for us.
+
+@chunk[<sstring>
+(define (sstring s)
+  (>>=
+    (string s)
+    (compose return list->string)))]
 
 @chunk[<return>
         (define $return (parser-one
-                          (string "return")
+                          (sstring "return")
                           $spaces
                           (~>
                             (>>= $expr (lambda (r)
@@ -378,27 +392,21 @@ recursion is useful for writing powerful parsing rules.
         (define $if
           (intersperse-spaces
             parser-seq
-            (string "if")
-            (~ (char #\())
-            $expr
-            (~ (char #\)))
-            (~ (char #\{))
-            $stmt-list
-            (~ (char #\}))
+            (>>= (sstring "if") (lambda _ (return 'if)))
+            (between (char #\() (char #\)) $expr)
+            (between (char #\{) (char #\}) $stmt-list)
             (<or> (intersperse-spaces
                     parser-seq
-                    (string "else")
-                    (~ (char #\{))
-                    $stmt-list
-                    (~ (char #\})))
-                  (return '()))))]
+                    (>>= (sstring "else") (lambda _ (return 'else)))
+                    (between (char #\{) (char #\}) $stmt-list))
+                  (return '()))
+            (~ $spaces)))]
 
 
 @chunk[<stmt-list>
-  (define $stmt (<or> $if
+  (define $stmt (<or> (try $if)
                       (parser-one
-                        (~>
-                          (<or> $return $var-decl $expr))
+                        (~> (<or> (try $return) (try $var-decl) $expr))
                         $spaces
                         (char #\;)
                         $spaces)))
@@ -412,15 +420,14 @@ recursion is useful for writing powerful parsing rules.
       $sidentifier
       $sidentifier
       (between (char #\() (char #\)) $arg-list)
-      (between (char #\{) (char #\}) $stmt-list)
-    ))
-]
+      (between (char #\{) (char #\}) $stmt-list))) ]
 
 @chunk[<*>
 (provide parse-c)
 <includes>
 <intersperse-spaces>
 <sidentifier>
+<sstring>
 
 <number>
 <string>

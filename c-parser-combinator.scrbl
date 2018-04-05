@@ -195,10 +195,10 @@ combinator. A number parser would be written,
 @chunk[<number>
 (define $number
   (<or>
-   (>>= (parser-seq (many $digit) (char #\.) (many $digit))
+    (>>= (try (parser-seq (many $digit) (char #\.) (many $digit)))
         (lambda (r)
-          (return (string->number (list->string r)))))
-   (>>= (many $digit)
+          (return (string->number (list->string (append (car r) (list (cadr r)) (caddr r)))))))
+    (>>= (many $digit)
         (lambda (r)
           (return (string->number (list->string r)))))))
 ]@note{In this case, the angle bracketed function @tt{<or>} is the actual function
@@ -208,6 +208,8 @@ Parser combinators look like regular code in the language. Besides a few odd
 looking functions, they're fairly self-explanatory. The rule above parses either
 a series of digits followed by a dot followed by a series of digits (for
 doubles) or a series of digits (for integers)
+
+Likewise, parsing strings and characters is straightforward.
 
 @chunk[<string>
 (define $string
@@ -253,41 +255,98 @@ spaces between every parser.
 	     ((list _ f args ...)
 	       (datum->syntax stx (cons f (intersperse args '(~ $spaces)))))
 	     (else
-	       (error 'intersperse-spaces "expecting function and arguments to intersperse"))))))
+	       (error 'intersperse-spaces
+                      "expecting function and arguments to intersperse"))))))
 ]
 
-@chunk[<var-assign>
-(define $var-assign
-  (>>=
-    (intersperse-spaces
-      parser-seq
-      $identifier
-      (char #\=)
-      $expr)
-    (lambda (j)
-      (return (list (cadr j) (car j) (caddr j))))))]
+Now we can use the @tt{intersperse-spaces} macro to rewrite the variable
+assignment rule.
 
-FIXME: verify that this isn't recurseive (it might be)
+@chunk[<var-assign>
+(>>=
+  (intersperse-spaces
+    parser-seq
+    $identifier
+    (char #\=)
+    $expr)
+  (lambda (j)
+    (return (list '=
+              (list->string (car j))
+              (list->string (caddr j))))))]
+
+
+@chunk[<binop-bad>
+(parser-compose
+  (lhs <- $expr)
+  $spaces
+  (op <- (oneOf "+-/*<>"))
+  $spaces
+  (rhs <- $expr)
+  (return (list op lhs rhs)))
+  ]
+
+When we try to create a parser rule for binary operations, we will run
+into a problem. The problem is that @tt{lhs} references an @tt{$expr}, which
+is the rule we're currently defining. We're allowed to reference the current
+rule recursively later in the rule
+(when we use the @tt{parser-seq} or @tt{parser-compose} macros, they
+  expand to lambda functions which delay the evaluation of reference
+  @tt{$expr}). However, we cannot reference it as the first rule. We also
+shouldn't reference the first rule immediately since this is a form of
+left-recursion. To eliminate left-recursion, we'll use the algorithm from
+the @cite{Dragon book}.
+
 @chunk[<binop>
-(define $binop
- (>>= (parser-seq
-       $expr
-       (~ $spaces)
-       (oneOf "+-/*<>")
-       (~ $spaces)
-       $expr)
-   (lambda (r) r)))]
+        (define $binop
+          (parser-compose
+            (op <- (oneOf "+/*<>"))
+            $spaces
+            (rhs <- $expr)
+            (return (cons (string->symbol (list->string (list op))) rhs))))
+        ]
 
 @chunk[<funcall>
-(define $funcall
-  (>>= (parser-seq $identifier $spaces (between (char #\() (char #\))
-                                                (sepBy (char #\,) $expr)))
-       (lambda (r)
-         ; FIXME put identifier in front
-         r)))]
+(intersperse-spaces
+  parser-seq
+  (>>= $identifier (lambda (r) (return (list->string r))))
+  (between (char #\() (char #\)) (sepBy $expr (char #\,))))]
 
 @chunk[<expr>
-        (define $expr (<or> $var-assign $binop $funcall))]
+        (define $expr-binopable
+          (<or>
+            (try <funcall>)
+            $char
+            $number
+            (>>= $identifier
+               (lambda (r)
+                 (return (list->string r))))))
+
+        (define $expr (<or>
+                        (try <var-assign>)
+                        $string
+                        (>>=
+                          (parser-seq
+                            $expr-binopable
+                            (<or> (try $binop) (return '())))
+                            (lambda (v)
+                              (return (apply cons v))))
+                        ))]
+
+The @tt{$expr-binopable} parser defines expressions that @italic{might}
+have a binary operation after parsing the term. This is to prevent the
+possiblity of binary operations after something like a variable assignment
+which doesn't make much sense.
+
+In the @tt{$expr} rule, we try to parse a binary operation, and return an
+empty list if it fails to parse. We've successfully eliminated
+left-recursion!
+
+When two rules reference each other recursively reference each other
+(like @tt{$binop} and @tt{$expr} in this case) we say they're mutually
+recursive. Mutual recursion can become an issue in some situations. For
+instance, it can lead to indirect left-recursion which is more subtle than
+direct left-recursion. But often when building parsers, it's mutual
+recursion is useful for writing powerful parsing rules.
 
 @chunk[<expr-list>
         (define $expr-list
@@ -297,8 +356,6 @@ FIXME: verify that this isn't recurseive (it might be)
   (define $arg-list
    (sepBy (parser-seq $identifier (~ $spaces) $identifier)
     (parser-seq $spaces (char ",") $spaces)))]
-
-TODO: write macro that inserts (~ $spaces) for me
 
 @chunk[<var-decl>
         (define $var-decl
@@ -312,41 +369,34 @@ TODO: write macro that inserts (~ $spaces) for me
                             (>>= $expr (lambda (r)
                                          (return (list 'return r)))))))]
 
-@chunk[<for-stmt>
-  (define $for
-    (parser-seq
-      (~ (string "for")) (~ $spaces)
-      (~ (char #\()) (~ $spaces)
-      $expr (~ $spaces)
-      (~ (char #\;)) (~ $spaces)
-      $expr (~ $spaces)
-      (~ (char #\;)) (~ $spaces)
-      $expr (~ $spaces)
-      (~ (char #\))) (~ $spaces)
-      (~ (char #\{)) (~ $spaces)
-      $expr-list
-      (~ (char #\})) (~ $spaces)
-      ))]
-
 @chunk[<if-stmt>
-  (define $if
-    (parser-seq
-      (~ (string "if")) (~ (char #\()) (~ $spaces)
-      $expr (~ $spaces)
-      (~ (char #\))) (~ $spaces)
-      (~ (char #\{))
-      $stmt-list
-      (~ (char #\})) (~ $spaces)
-      (<or> (parser-seq
-             (~ (string "else"))
-             (~ (char #\{)) (~ $spaces)
-             $stmt-list
-             (~ (char #\})) (~ $spaces)
-            (return '())))))]
+        (define $if
+          (intersperse-spaces
+            parser-seq
+            (string "if")
+            (~ (char #\())
+            $expr
+            (~ (char #\)))
+            (~ (char #\{))
+            $stmt-list
+            (~ (char #\}))
+            (<or> (intersperse-spaces
+                    parser-seq
+                    (string "else")
+                    (~ (char #\{))
+                    $stmt-list
+                    (~ (char #\})))
+                  (return '()))))]
 
 
 @chunk[<stmt-list>
-  (define $stmt (string "stmt"))
+  (define $stmt (<or> $if
+                      (parser-one
+                        (~>
+                          (<or> $return $var-decl $expr))
+                        $spaces
+                        (char #\;)
+                        $spaces)))
   (define $stmt-list
     (endBy $stmt (parser-seq $spaces (char #\;) $spaces)))]
 
@@ -371,22 +421,21 @@ TODO: write macro that inserts (~ $spaces) for me
 @chunk[<*>
 (provide parse-c)
 <includes>
+<intersperse-spaces>
+
 <number>
 <string>
 <char>
-<expr>
-<intersperse-spaces>
-<var-assign>
 <binop>
-<funcall>
+<expr>
 <expr-list>
 <arg-list>
 <var-decl>
 <return>
-<for-stmt>
 <if-stmt>
 <stmt-list>
 <func-def>
+
 (define (parse-c s)
   (parse-result $func-def s))
 ]

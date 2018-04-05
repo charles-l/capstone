@@ -88,6 +88,11 @@
       #:is-book? #f
       #:author "Andrew W. Keep and Leif Anderson"
       #:url "https://docs.racket-lang.org/nanopass/index.html")
+  (bib-entry
+      #:key "Dragon book"
+      #:title "Compilers: Principles, Techniques, & Tools"
+      #:is-book? #t
+      #:author "Alfred V. Aho, Monica S. Lam, Ravi Sethi and Jeffrey D. Ullman")
   )
 
 @;{https://arxiv.org/pdf/1611.00467.pdf}

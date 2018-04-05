@@ -16,13 +16,57 @@
 
 @section{Introduction}
 
+Programming languages, to some programmers, can be seen as mystical
+entities that execute their programmers. To understand the inner workings
+of these magical beasts would require years of research and advanced
+knowledge of computers. Programming language implementations do draw on
+many areas of computer science knowledge, but a simple programming
+language can easily be developed by any hacker with moderate interest and
+a few weekends of free time. In fact, a simple meta-circular interpreter
+developed in Racket, could be written in one sitting.
+
+This book is meant to be an introduction to some of the concepts and
+techniques used to build your own programming languages. We'll be looking
+at simple implementations and runnable example code throughout the book.
+Most code examples can be run, and the reader is encouraged to run them,
+particularly for the sections that are confusing. Playing around with
+example code is one of the best ways to learn.
+
+The code chunks are written in a style of programming called literate
+programming. The some chapters of the book are runnable as a program (if
+you check out the source). You view all the source at once, play with it,
+tweak it, and run it.
+
 @subsection{Book source}
 
-Literate programming.
-
-The source for this whole book is available on GitHub (https://github.com/charles-l/capstone), with runnable code examples.
+The source for this whole book is available on GitHub
+(https://github.com/charles-l/capstone). The reader is encouraged to
+download the source and run it for themself.
 
 @subsection{Why bother with programming language implementation?}
+
+There are many reasons for learning how programming languages work under
+the hood, but some of the most useful are gaining a deeper understanding
+of what programming languages do, how to implement your own domain
+specific languages, and building your own general purpose programming
+languages for fun.
+
+Gaining a comprehensive knowledge of compilers and interpreters gives you
+the ability to reason about error messages and performance in your
+favorite programming language. Knowledge of how the C compiler works,
+gives a programmer the ability to determine the difference between compile
+time and link time errors. When they get a linker error, they'll realize
+they forgot to include a library or object file in their compilation
+command.
+
+Performance tuning is also easier once a programmer knows how a programing
+language is optimizing. For instance, knowing that Lua puts strings in
+a hash-table (called string interning), so string comparisons are cheap.
+This means the programmer doesn't have to intern the strings in a hash
+table by hand. Or in Python, knowing that the bytecode compiler generates
+an opcode to create a dictionary directly for an inline declaration (i.e.
+@tt{{}}), and the @tt{dict()} function does a function call generates the
+opcode, meaning an inline @tt{{}} is faster than calling @tt{dict()}.
 
 @section{Background}
 

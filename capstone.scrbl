@@ -1366,6 +1366,9 @@ of this book which focuses on compilers.
 
 @section{Conclusions}
 
+In the last few chapters, we've learned to use Racket to build parsers
+using traditional parser tools like @tt{lex} and @tt{yacc}.
+
 @subsection{Where to go from here}
 
 @section{References}

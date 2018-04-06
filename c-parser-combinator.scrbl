@@ -415,12 +415,14 @@ helper function to parse this way for us.
 
 @chunk[<func-def>
   (define $func-def
-    (intersperse-spaces
-      parser-seq
-      $sidentifier
-      $sidentifier
-      (between (char #\() (char #\)) $arg-list)
-      (between (char #\{) (char #\}) $stmt-list))) ]
+    (>>=
+      (intersperse-spaces
+        parser-seq
+        $sidentifier
+        $sidentifier
+        (between (char #\() (char #\)) $arg-list)
+        (between (char #\{) (char #\}) (parser-one $spaces (~> $stmt-list) $spaces)))
+      (lambda (r) (return (cons 'fun r))))) ]
 
 @chunk[<*>
 (provide parse-c)
@@ -459,3 +461,18 @@ bind operator (@tt{>>=}) and a few low-level parsers (like @tt{char}).
 From there, they can combine and use any functions they want, and can even
 extend the functionality by adding their own parsers or combinators.
 
+Our parser is cabable of parsing the following programs:
+
+@code-examples[#:lang "racket" #:eval ev #:context #'here]|{
+  (require "c-parser-combinator.scrbl")
+  (parse-c "int main(int a) {
+              long x;
+              x = 2;
+              if(x){
+                return a;
+              } else {
+                x = 3;
+              }
+              return f(1+a*x);
+            }")
+}|

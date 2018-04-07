@@ -8,11 +8,16 @@
     #:author "John Tromp"
     #:url "https://tromp.github.io/cl/LC.pdf")
   (bib-entry
-    #:key "DrS"
+    #:key "DrScheme"
     #:title "DrScheme: A Programming Environment for Scheme"
     #:is-book? #f
     #:author "Robert Bruce Findler, John Clements, Cormac Flanagan, Matthew Flatt, Shriram Krishnamurthi, Paul Steckler and Matthias Felleisen"
     #:url "https://users.soe.ucsc.edu/~cormac/papers/jfp01.pdf")
+  (bib-entry
+    #:key "The Little Schemer"
+    #:title "The Little Schemer"
+    #:is-book? #t
+    #:author "Daniel P. Friedman and Matthias Felleisen")
   (bib-entry
     #:key "Leijen, 2001"
     #:title "Parsec: Direct Style Monadic Parser Combinators For The Real World"

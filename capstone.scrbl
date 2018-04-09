@@ -1220,14 +1220,15 @@ parsing techniques. However, for the rest of the book, we will be using
 s-expressions to represent our language since they're a convenient
 format to use to represent ASTs (especially in Racket). Writing an
 s-expression parser is trivial, but since Racket has a built in @tt{read}
-function (which parses our syntax for us), we'll be using it in
-conjunction with simple pattern matching to parse our languages.
+function (which does all necessary parsing into an s-expression), we'll be
+freed from having to write any parsing code for the rest of the
+implemlentations.
 
 @section{Interpreters}
 
-We will begin with a brief look at interpreters. Simple interpreters are easier
-to implement than simpler compilers, so they're generally a first step for
-programming language implementations.
+We will begin with a brief look at interpreters. Simple interpreters are
+easier to implement than simpler compilers, so they're often used for
+prototyping language implementations.
 
 We'll start with the simplest type of interpreter, a graph walking interpreter.
 
@@ -1239,16 +1240,16 @@ Graph walking interpreters are straightforward to implement. A few minor
 transformations are made on the IR, then the interpreter executes the
 graph directly. Since the source closely represents the runtime structure
 of the code, runtime errors are easier debug. Finally, metaprogramming and
-reflection are simpler since no extra metadata has to be stored to ensure
+reflection are simple since no extra metadata has to be stored to ensure
 the runtime environment has access to the information it needs.
 
 The downside of graph walking interpreters is their poor performance.
 Traversing a graph generally entails following pointers from node to node,
 which is far slower to execute on modern CPU's than sequences of (mostly)
 contiguous instructions. Many interpreted programming language
-implementations languages start out as graph walking interpreters, since
-they're quick to implement. Eventually, most implement a virtual machine
-(VM) to improve performance.
+implementations start out as graph walking interpreters, since they're
+quick to implement. Eventually, most compile to a bytecode that is
+interpreted on a virtual machine (VM) to improve performance.
 
 Essentially, we've already implemented a graph walking interpreter with the
 Lisp implementation on the last page. Lisp code is already a tree once
@@ -1259,9 +1260,10 @@ Lisp implementation on the last page. Lisp code is already a tree once
 Once a language has a graph interpreter, the language implementer will
 want to improve its performance. The next step is to design a virtual
 machine (VM) for the language that maps closely to real hardware, without
-drifting far from the semantics of the interpreted language. A close
-mapping ensure the conversion from source to the VM's instructions (called
-bytecode) is a simple task.
+drifting far from the semantics of the interpreted language. The goal of
+the bytecode is to be an intermediate target between the source and real
+machine code so the from source to the VM's instructions (called bytecode)
+is a simple and fast.
 
 @graphviz{
     digraph G {
@@ -1277,7 +1279,7 @@ bytecode) is a simple task.
     }
 }
 
-While this strategy requires more processing to initially convert the
+While this strategy requires initially processing to convert the
 source to bytecode, it can improve interpretation speed tremendously. To
 prevent slow startup times caused by bytecode compilation, some languages
 require a separate compile step to generate a bytecode file. This bytecode
@@ -1285,13 +1287,14 @@ file is then directly interpreted by the virtual machine implementation.
 One example of this is Java, which requires a compile step with @tt{javac}
 (the Java compiler) to generate a @tt{.java} file which can then be
 interpreted by the JVM implementation installed on the machine. Even
-languages like Python will implicitely generate cached bytecode files
-(@tt{.pyc}) for installed libraries to make imports faster.
+languages like Python will generate bytecode files (@tt{.pyc}) and cache
+them for installed libraries to improve import speed.
 
 Some languages like Ruby and Lua don't bother with caching the bytecode
-and re-parse the file every time it is loaded. This may be because
-performance isn't a focus (in Ruby's case), or because the language is
-meant for embedded purposes with small source files (in Lua's case).
+and re-parse the file every time it is loaded. This decision is made
+because performance isn't a focus (in Ruby's case), or because the
+language is meant for embedded purposes with small source files (in Lua's
+case).
 
 It's important to realize that the compilation step happens. The term
 "interpreter" can be misleading when most language "interpreters" are
@@ -1300,12 +1303,12 @@ source into VM bytecode. While the bytecode interpreter is a proper
 interpreter (usually), modern interpreters can be better described as
 naive compilers that feed the result into a bytecode interpreter.
 
-@subsubsection{Stack based}
+@subsubsection{Stack-based}
 
 The simplest virtual machine model is a stack-based machine. This
 design of virtual machine has no registers, instead relying on pushing and
-popping from the stack. All operations affect the top elements in the
-stack, and new computations are pushed onto the stack when completed.
+popping from the runtime stack. All operations affect the top elements in
+the stack, and new computations are pushed onto the stack when completed.
 
 A simple stack-based bytecode might look like:
 
@@ -1340,19 +1343,23 @@ Which equates to the operations,
     }
 }
 
-Each after each operation or function "returns", it places the result on the top
-of the stack, so the next operation can access it. Stack machines are
-popular because the simple design is appealing. Register allocation is not
-an issue, and it is simple to reason about stack operations. Stack-based
-VMs do have a slight performance loss and require more instructions than
+After each result from an operation is computed, it placed on the top of
+the stack, so the next operation can access it. Stack machines are popular
+because the simple design is appealing. Register allocation is not an
+issue, and it is easy to reason about stack operations. Stack-based VMs do
+have a slight performance loss and require more instructions than
 register-based VMs.
 
-@subsubsection{Register based}
+@subsubsection{Register-based}
 
-Register based machines require fewer significantly fewer instruction for programs,
-and are faster than stack-based machines @cite{Yunhe} (due to the fact
-that a register-based vm reflects the architecture of a real machine more
-than a stack-based vm does).
+Register-based VMs require fewer significantly fewer instruction for
+programs, and are faster than stack-based machines @cite{Yunhe, 2005} (due
+to the fact that a register-based VM reflects the architecture of a real
+machine more than a stack-based VM does).
+
+Register-based VMs are less common than stack-based VMs. The most notable
+register-based VMs implementations are LuaJIT and the V8 JavaScript
+implementation in Chrome.
 
 @subsubsection{JIT compilation}
 
@@ -1360,8 +1367,8 @@ The disadvantage of a naive stack or register-based interpreter written
 another language is that interpretation of virtual machine bytecode is
 inherently slower than native code. Machine code written specifically for
 the target CPU's architecture will run faster the machine code that is
-interpreting some other bytecode. To mitigate the problem, fast
-interpreters will compile portions of the interpreted bytecode directly to
+interpreting some other bytecode. To mitigate the problem, the fastest
+interpreters compile portions of the interpreted bytecode directly to
 machine code at runtime.
 
 This technique (known as just-in-time compilation), is what makes many modern
@@ -1385,10 +1392,10 @@ frequently called in the bytecode, the tracing JIT could
 inline@note{Inlining is the process of copying the code inside a function
 to where the function is called, so there's less overhead from a function
 call and certain other optimizations are possible} the bytecode
-instructions and compile the whole sequence of instructions to
+instructions and compile the whole sequence to
 machine code, which is something a conventional ahead-of-time (AOT)
-compiler simply couldn't do since it is impossible for it to determine
-which module will be dynamically loaded.
+compiler simply couldn't do. It is impossible for an AOT compiler to
+determine which module will be dynamically loaded.
 
 The dynamism of JITs is quite fascinating, and its interesting how the
 interpreter can "learn" to make code faster over time. But JIT's are a
@@ -1406,9 +1413,47 @@ of this book which focuses on compilers.
 @section{Conclusions}
 
 In the last few chapters, we've learned to use Racket to build parsers
-using traditional parser tools like @tt{lex} and @tt{yacc}.
+using traditional parser tools like @tt{lex} and @tt{yacc}. We've looked
+into the more advanced approach of using parser combinators, and seen how
+they compare to @tt{lex} and @tt{yacc}.
+
+We've breifly looked at interpreter implementation, and how modern
+"interpreters" use bytecode virtual machines to improve performance. Some
+even perform more compilation steps in the bytecode interpreter to JIT
+code for native speeds.
+
+Finally, we looked at how compilers work, and how the passes for common
+transformations could be implemented in a nanopass compiler. The full
+source is available at
+@url{https://github.com/charles-l/comp/tree/master/fir} for reader
+experimentation.
 
 @subsection{Where to go from here}
+
+Given the constraints, this introduction only scratches the surface of
+programming language implementations. Many resources exist for those who
+are more interested in this area of computer science.
+
+As mentioned many times throughout this book, Structure and Interpretation
+of Computer programs @cite{SICP} is a great introduction to many
+interpreter and compiler concepts, and is a good place to start before
+delving into more advanced literature.
+
+The Tiger Book @cite{Appel, 1998} is more advanced, and goes into more
+detail about many of the details of a compiler. The @cite{Dragon Book} is
+even more advanced, and is considered a classic in the compiler community.
+It is primarily focused on imperative compilers, but most of the
+information is useful to functional languages.
+
+For jitted interpreters, there aren't really any books on the subject.
+There are a smattering of blog posts and academic papers on the subject,
+but no central source of knowledge. The best way to learn about JITs is to
+study real implementations for LuaJIT or V8, and play with the source
+code.
+
+There is a good chance this book will continue to receive updates into the
+future. If it does, the source code and book contents at
+@url{https://github.com/charles-l/capstone} will be updated.
 
 @section{References}
 

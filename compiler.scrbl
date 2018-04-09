@@ -5,25 +5,27 @@
 @(require "util.rkt")
 
 This final portion of the book will focus on compilers. Compilers convert the
-source language to a target language (generally assembly or VM bytecode). The
-process happens in a series of passes, starting with parsing, semantic
-analysis, and a series of optimization passes.
+source language to a target language (generally assembly or VM bytecode).
+The process is performed in a series of passes, starting with parsing,
+semantic analysis, before being passed to a series of optimization passes,
+and eventually a code-generation pass.
 
 The later passes in a compiler (called the backend) are where a compiler really
 diverges from an interpreter. Both an interpreter and a compiler may share a
 front-end (i.e. the parsing/semantic analysis passes), but after that
-point they diverge in what they do. An interpreter will take the
-high-level IR from the from the front-end and either comiple it to
-a byte-code after some simple optimization passes, or it will begin
-interpreting the IR directly.
+point they deviate in what they do. An interpreter will take the
+high-level IR from the from the front-end begin interpreting the IR
+directly (unless it compiles to bytecode, in which case the interpretation
+happens on the bytecode).
 
 Since compilers read and compile code once, they can do sophisticated and
-computationally expensive optimization passes that aren't usually available to
-interpreters for performance reasons. Fast compilers are important, but slower
-compilers are acceptable when the final binary has a faster execution time.
+computationally expensive optimization passes that aren't available to
+interpreters for performance reasons. Fast compilers are important, but
+slower compilers are acceptable when generating a release binary that
+needs a faster execution time.
 
-An overview of the compiler pipeline we for our compiler implementation is as
-follow:
+An overview of the compiler pipeline we use for our compiler
+implementation is as follow:
 
 @graphviz{
     digraph {
@@ -45,45 +47,46 @@ as a series of passes in a pipeline. This makes projects easy to reason
 about since the structure of the project is clear and well defined. In toy
 compilers and education courses, compiler developers will sometimes build
 micropass compilers - compilers that are composed of many small passes
-that each perform small transformations in the intermediate
-representation. However, most real-world compilers have a few
-sophisticated passes that perform significant transformations on the
-intermediate representation. This makes them difficult to understand and
-maintain over time @cite{Sarkar, 2005}.
+that each perform trivial transformations to the intermediate
+representation. However, most real-world compilers have few sophisticated
+passes that perform multiple transformations on the intermediate
+representation. This makes them difficult to understand and maintain over
+time @cite{Sarkar, 2005}.
 
 Micropass compilers are preferred since every pass can be understood,
 tweaked, and quickly replaced. However, each pass implicitly expects
-a correct input IR, and, if properly defined, may output an IR that isn't
-valid. When the error isn't caught early on in pipeline, subtly incorrect
-IRs can propagate downstream before breaking a later pass. These types of
-errors can be hard to debug in a micropass compiler, since it can be
-difficult to track down the pass that generated the invalid IR.
+a correct input IR, and does no verification to assert the output IR is
+valid. When an incorrect IR is generated and isn't caught early in the
+pipeline, subtly incorrect IRs can propagate downstream before breaking
+a later pass. These types of errors can be hard to debug in a micropass
+compiler, since it is difficult to find the pass that generated the
+invalid IR.
 
 Besides debuggablity, micropass compilers are also painfully slow. Since
-they generate a new tree with every (instead of transforming it in-place),
-each pass must re-parse the whole tree every time. This problem becomes
-apparent on large, practical projects that compile large, real-world
-codebases.
+they generate a new tree with every pass (instead of transforming it
+in-place). Each pass must navigate the whole tree for every pass. This
+problem becomes serious on large, practical projects that compile large,
+real-world codebases.
 
 The Nanopass framework is a domain specific language that attempts to
 mitigate these issues by formally defining each pass's input and output
 languages, and using an efficient record-based data structure for storing
 passes. Along with solving these problems, it also provides nice syntactic
-sugar to rid micropass compiler code of the boilerplate it sometimes
-accumulates.
+sugar to rid the compiler code of the boilerplate micropass compilers
+sometimes accumulate.
 
 While primarly used for educational purposes, the nanopass framework is
 viable for real-world compilers as well. The Chez Scheme implementation is
 a Scheme implementation developed by Cisco, and is one of the most
 performant Scheme implementations available. The backend for Chez was
-recently reimplemented in nanopass @cite{Keep, 2013}, @cite{Keep, 2012},
-that generated faster executables without huge performance loss on compile
-times (which is an impressive feat considering Chez is an extremely fast
-compiler).
+recently reimplemented in Nanopass @cite{Keep, 2013}, @cite{Keep, 2012},
+so it could generate faster executables without huge performance loss on
+compile times (which is an impressive feat considering Chez is an
+extremely fast compiler).
 
 In our implementation we will use the Nanopass framework, since it's
-a viable framework for building compilers, and defines passes in a syntax
-that's easy to understand.
+a viable framework for building compilers, and allows us defines passes in
+a syntax that's easy to understand.
 
 @(define np (make-code-eval #:lang "racket"))
 
@@ -107,16 +110,15 @@ We'll start by looking at a language that might be the input for a pass.
       (e0 e1 ...)))
 }|
 
-When defining terminals, the names are significant. The name of the
-terminal expects to have an associated predicate (so @tt{var} expects
-@tt{var?} to exist and @tt{literal} expects @tt{literal?} to exist). The
-symbol in parentheses beside the variable names a metavariable which can
-be used in the non-terminal productions (e.g. the definitions inside of
-@tt{Expr}).
+When defining terminals, the names are significant. The Nanopass expects
+a prediciate for every terminal (so @tt{var} expects @tt{var?} to exist
+and @tt{literal} expects @tt{literal?} to exist). The symbol in
+parentheses beside the variable names a metavariable which can be used in
+the non-terminal productions (e.g. the definitions inside of @tt{Expr}).
 
 Next we define our non-terminals, and their production rules. In this
 language we'll make it a tiny subset of Scheme. When writing production
-rules, the names are significant. Symbols like @tt{*}, @tt{$}, @tt{^} and
+rules, the names are meaningful. Symbols like @tt{*}, @tt{$}, @tt{^} and
 numbers are ignored, but the rest of the name is significant. When using
 the @tt{v} metavariable, Nanopass will expect to find a variable and will
 ensure that it is a variable using the @tt{var?} predicate.
@@ -124,11 +126,12 @@ ensure that it is a variable using the @tt{var?} predicate.
 The ellipses are used to notate that the previously listed variable is
 expected to be defined zero or more times.
 
-Now we'll consider simplifying this language so every set of multiple
-expressions (i.e. lambda bodies) are wrapped in
-a begin block if they have more than one expression.
+Now we'll consider transforming this language to another. The
+transformation we'll perform will wrap every sequence of multiple
+expressions (i.e. lambda bodies) @tt{begin} block if they have more than
+one expression.
 
-First we'll define what our target language. Since it's just a variation
+First we'll define our target language. Since it's just a variation
 on the previous language we can extend @tt{L0} to remove multiple
 expressions for the body.
 
@@ -171,8 +174,10 @@ will be enough to give a general understanding of what the passes do. For
 more information, read the @cite{nanopass-racket documentation} and
 @cite{Keep, 2012}
 
-For the sake of brevity, we will not be defining intermediate languages,
-and will instead focus on the transformation passes.
+For the sake of brevity, we will not define intermediate languages, and
+will instead focus on the transformation passes. The code for the fully
+functioning compiler can be found at
+@url{https://github.com/charles-l/comp/tree/master/fir}.
 
 @subsection{Desugaring}
 
@@ -185,7 +190,8 @@ variable with the new value).
 The shorthand syntax (known as @italic{syntactic sugar}), creates
 extraneous expressions that must be handled by passes further down the
 pipeline. These expressions can be simplified to a semantic equivalent in
-a smaller core language with the same meaning (but more verbose syntax).
+a smaller core language with the same meaning (albeit with more
+verbose syntax).
 
 For instance, the creation of a @tt{vector} might be converted from:
 
@@ -205,8 +211,8 @@ to:
 }|
 
 For Racket, it is a bit contrived to have the compiler perform desugaring,
-since most language features are implemented as macros. In Racket, macros
-allow the programmer do define their own syntactic sugar. However, in most
+since most language features are implemented as macros. Macros even allow
+the programmer do define their own syntactic sugar. However, in most
 languages where the syntax isn't as customizable, desugaring is a useful
 step that simplifies the structure of later passes.
 
@@ -222,18 +228,20 @@ a lower-level IR that maps more closely to machine code.
 Functional compilers regularly use continuation-passing style (CPS) or
 A-normal form (ANF) as an intermediate representation.
 
-@subsubsection{Continuation Passing Style}
-
 @subsubsection{A-normal form}
+
+We will be using ANF in our implementation.
 
 A-normal form was introduced in @cite{Flanagan, 1993}, as an alternative
 to CPS since CPS has clunky syntax and encodes some redundant information.
-ANF is equivalent to CPS, and requires simpler transformation passes.
+ANF is equivalent to CPS, and doesn't require complicated transformation
+passes.
 
 In ANF, every subexpression is reduced and lifted into its own temporary
-variable. This means that function call arguments only reference
-variables, and cannot be expressions themselves. When every subexpression
-is an immediate value, translation to machine code is trivial.
+variable. This means that function call arguments only reference variables
+or literals, and cannot be expressions themselves. When every
+subexpression is an immediate value, translation to machine code is
+trivial.
 
 Consider the following program:
 
@@ -260,8 +268,8 @@ If we were to rewrite it in ANF:
 }|
 
 In this example the variables are named with temporaries since a human
-isn't expected to write in ANF since it's an automated transformation in
-the compiler.
+isn't expected to write in ANF, since the compiler transforms code to ANF
+automatically.
 
 The Scheme compiler we implement will include a pass that converts the
 program into ANF form. It is implemented recursively by ensuring that
@@ -321,7 +329,7 @@ and we can make them syntactically equivalent by transforming them using
 
 @$${\lambda j \; . \; j \Rightarrow \lambda i \; . \; i}
 
-it is equivalent to the first equation.
+it is syntactically equivalent to the first equation.
 
 α-conversion is not only useful for checking equivalence. It can also be
 used to rename variables. When variables are shadowed, the order in which
@@ -331,8 +339,9 @@ they appear is significant.
 
 To prevent later passes from having to track environment information to
 properly shadow variables, α-conversion is done to ensure each variable
-name is unique. For instance, the previous expression could be converted
-into the following to differentiate between shadowed variables:
+name in the program is unique. For instance, the previous expression could
+be converted into the following to differentiate between shadowed
+variables:
 
 @$${\lambda x.0, y \; . \; ((\lambda x.1 \; . \; x.1) \; y) + x.0}
 
@@ -414,8 +423,7 @@ pipeline). Type-checking can be implemented as a sort of
 pseudo-interpreter that evaluates and checks type information in the
 program.
 
-Type checking will track types in a symbol-table, which is passed along as
-the @tt{env}.
+Type checking will track types in a symbol-table called @tt{env}.
 
 @chunk[<type-check>
 (define-pass type-check-and-discard-type-info : L0 (ir) -> L1 ()
@@ -475,9 +483,10 @@ the @tt{env}.
 
 Most of the passes in a real-world compiler's backend are dedicated to code
 optimization. The term code optimization is a bit misleading, since it
-doesn't result in optimal code. It generates code that may be more performant because of
-transformations based on heuristics. However, these heuristics can be valuable for
-improving the runtime performance of the binaries produced by the compiler.
+doesn't result in optimal code. It generates code that may be more
+performant because of transformations based on heuristics. However, even
+though the code isn't optimal, these heuristics can be valuable for
+improving the runtime performance of generated code.
 
 @subsubsection{Inlining}
 
@@ -515,10 +524,11 @@ If we look at the following code, we can hand optimize a few things.
     (widget-price-with-tax)
 }|
 
-Given @tt{+widget-price+} stays constant throughout the program, calculating the
-@tt{(widget-price-with-tax)} will be the same number in every case. Rather than recalculating
-it ever time we call the function, we can determine statically (i.e. at compile time) that
-the value of the widget price is 3.18.
+Given @tt{+widget-price+} stays constant throughout the program, the value
+of @tt{(widget-price-with-tax)} will be the same number in every case.
+Rather than recalculating it ever time we call the function, we can
+determine statically (i.e. at compile time) that the widget
+price is 3.18.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (define (widget-price-with-tax)
@@ -552,7 +562,7 @@ Arguably not really an optimization, lambda-lifting is a code
 transformation that attempts to eliminate closures (and must be done to
 move functions outside of their inline definitions since defining inner
 functions in assembly doesn't make much sense). In our implementation, we
-don't support closures, lambda-lifting is a fairly simple operation.
+don't support closures, so lambda-lifting is a simple operation.
 
 @chunk[<lambda-lifting>
 (define-pass lift-lambdas : L1.1 (ir) -> L2 ()
@@ -571,8 +581,9 @@ don't support closures, lambda-lifting is a fairly simple operation.
                `(program (label program_entry () ,e) ,*fs* ...)))
 ]
 
-We define a new non-terminal type for our language called @tt{Func} and
-use it to lift any internal lambdas to the highest outer scope.
+We defined a new terminal called @tt{program} which is a list of labels
+and their associated lambdas. Generating machine code is then a simple
+matter of emitting the function name as label, followed by its body.
 
 @subsubsection{Deforestation}
 
@@ -620,11 +631,13 @@ program control flow and variable usage. Commonly, data-flow and
 control-flow passes will collection information about:
 
 @itemlist[
-@item{@bold{Variable use} Relevent information includes next-use information (i.e.
-how many expressions until the variable is referenced again). This information is useful
-for register allocation (so often used variables get precedence), redundant variable elimination
-  (to remove expressions that calculate values that are overwritten without being read), and dead variable
-  elimination (which doesn't generate code for variables that are never used).}
+@item{@bold{Variable use} Relevent information includes next-use
+information (i.e. how long until the variable is referenced again). This
+information is useful for register allocation (so regularly used variables
+get precedence), redundant variable elimination (to remove expressions
+that calculate values that are overwritten without being read), and dead
+variable elimination (which doesn't generate code for variables that are
+never used).}
 
 @item{@bold{Control flow} The control flow for a program can be represented using a
 directed-acyclic graph (DAG), which can be used to perform optimizations like dead-code elimination.}
@@ -636,9 +649,10 @@ blocks or a-normal form).
 
 @subsection{Various other optimization techniques}
 
-There are a plethora of other optimization techniques utilized
-by standard imperative compilers. Since they tend to be smaller, and less
-specific to functional languages, we'll only briefly touch on them.
+There are a plethora of other optimization techniques utilized by standard
+imperative compilers. Since they tend to be lead to smaller performance
+gains, and are less specific to functional languages, we'll only briefly
+touch on them.
 
 @subsubsection{Dead code elimination}
 
@@ -648,8 +662,9 @@ has the potential to be executed, we're left with all the "dead code" (i.e. code
 cannot ever be executed in our program).
 
 Dead code elimination cuts down wasted resource usage that is the result of lazy
-programming. It can even be exposed to the programmer as a linting or code quality
-metric so they can determine how much of the project is wasted.
+programming. It can even be exposed to the programmer as a linting or code
+quality metric so they can determine how much of the code in the project
+is unused.
 
 Consider the following code:
 
@@ -697,9 +712,10 @@ into this code:
 
 @subsubsection{Loop invariant detection}
 
-If code that is executed repeatedly is tuned for performance, the overall speed of a program can
-improve drastically. When possible, optimizing compilers will often move code from inside
-a loop to the scope above, if the value isn't determined by the loop. For instance,
+If code that is executed repeatedly is tuned for performance, the overall
+speed of a program can improve drastically. When possible, optimizing
+compilers will lift expressions inside of a loop to the surrounding scope,
+if the value isn't determined by the loop. For instance,
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (require math/number-theory)
@@ -708,9 +724,10 @@ a loop to the scope above, if the value isn't determined by the loop. For instan
       (+ j k)))
 }|
 
-Since @tt{j} relies on @tt{i}, a variable computed in the loop, we must leave it where it is.
-However, @tt{k} recalculates the 20th prime in every iteration, despite the fact that the 20th prime
-never changes. Therefore, we can "hoist" it out of the loop, and only calculate its value once.
+Since @tt{j} relies on @tt{i}, a variable computed in the loop, we must
+leave it where it is. However, @tt{k} recalculates the 20th prime in every
+iteration, despite the fact that the 20th prime never changes. Therefore,
+we can "hoist" it out of the loop, and only calculate its value once.
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (require math/number-theory)
@@ -721,18 +738,20 @@ never changes. Therefore, we can "hoist" it out of the loop, and only calculate 
 }|
 
 Loops constructs permeate imperative code, but are not as popular in functional languages,
-so this type of optimization is less useful to us. However, it could still be used for hoisting
-variables outside of recursive named-@tt{let}s or recursive inner functions.
+so this type of optimization is less useful to us. However, it could still
+be used for hoisting variables outside of recursive named-@tt{let}s or
+recursive inner functions.
 
 @subsubsection{Loop unrolling}
 
-Another optimization for loops is loop unrolling which lowers the cost of short loop
-expressions. Since the loop expressions will regularly branch, it will be expensive to finish
-an iteration, check whether the loop is finished, then jump to the beginning of the loop again.
+Another optimization for loops is loop unrolling, which lowers the cost of
+short loop bodies. Since the short loop bodies regularly branch, it is
+expensive to finish an iteration, check whether the loop is finished, then
+jump to the beginning of the loop again.
 
-Sometimes (if the loop is small enough), loop unrolling can completely eliminate the loop,
-but in cases with many iterations, it can still partially unroll the loop to make the loop
-execute the same sequence of multiple times in an iteration. For instance,
+Sometimes (if the loop is small enough), loop unrolling can completely
+eliminate the loop, but in cases with many iterations, partially unrolling
+the loop can make the loop execute more quickly. For instance,
 
 @code-examples[#:lang "racket" #:context #'here]|{
     (for ((i (in-range 0 20)))
@@ -770,7 +789,7 @@ Could be rewritten,
       (+ (vector-ref position 2) (vector-ref translation 2)))
 }|
 
-Which is far more performant since we've fully eliminated branching.
+Which is far more performant since we've eliminated branching.
 
 @subsection{Code generation for x86}
 
@@ -781,15 +800,15 @@ our target architecture.
 @subsubsection{A brief review of assembly}
 
 Assembly is the lowest level series of an instructions a programmer can
-provide to a computer. Most CPU's have hundreds (or thousands) of
+provide to a computer. Most CPUs have hundreds (or thousands) of
 instructions for performing mathematical, boolean algebra, memory
 manipulation, and code branching operations. For the x86 architecture,
 most of these instructions can be safely ignored as they're only used in
 rare cases, or are kept for backwards compatibility.
 
-Despite the scores of instructions available, CPU's are fundamentally the
+Despite the scores of instructions available, CPUs are fundamentally the
 same as pocket calculators, just with more memory, and more conditional
-logic. CPU's have a set of @italic{registers} which are each capable of
+logic. CPUs have a set of @italic{registers} which can each
 holding a few dozen bits. For instance, 32-bit machines primarily have
 32-bit registers, 64-bit machines have 64-bit registers.
 
@@ -811,9 +830,10 @@ a condition.
 CPU operations are performed on registers, and must load data from memory
 into a register before using it. Once an operation is completed and the
 data needs to be stored for later use, it will be put back into a memory
-location. Some registers are special purpose, and must be used when using
-certain instructions, while the rest are general purpose registers for
-storing and transforming temporary values with most instructions.
+location. Some registers are special purpose, since certain instructions
+can only operate on values in specific registers. The rest are general
+purpose registers and can be used for storing and transforming temporary
+values.
 
 32-bit register names are prefixed with an "e". In our compiler, the
 immediate value (i.e. the current value we return from each expression) is
@@ -838,9 +858,10 @@ is equal to, less than, or greater than the second value.
 
 However, the @tt{cmp} instruction doesn't change @tt{%eip} to branch. The
 instruction directly after determines the jump. @tt{jz} will jump if the
-@tt{cmp} results were equal. @tt{jne} jumps if they're not equal, @tt{jg}
-jumps if greater than. Unconditional jumps that don't rely on the result
-of a @tt{cmp} can be made with the @tt{jmp} instruction.
+@tt{cmp} results were equal. @tt{jne} jumps if they're not equal, and
+@tt{jg} jumps if the first was greater than the second. Unconditional
+jumps that don't rely on the result of a @tt{cmp} can be made with the
+@tt{jmp} instruction.
 
 @tt{push} and @tt{pop} operate on the runtime stack, and can be used to
 save a registers value to, or restore it from the stack. Underneath the
@@ -886,8 +907,8 @@ assembly instructions.
 }
 
 Local variables are pushed onto the stack and can be accessed by adding
-offsets to @tt{ebp} (of 4 byte intervals for 32-bit x86). For instance, to
-access @tt{local 1} using pseudo C syntax, @tt{*(%ebp - 4)} (i.e. we
+offsets to @tt{%ebp} (of 4 byte intervals for 32-bit x86). For instance,
+to access @tt{local 1} using pseudo C syntax, @tt{*(%ebp - 4)} (i.e. we
 dereference the memory location stored in %ebp minus an offset of
 4 bytes).
 

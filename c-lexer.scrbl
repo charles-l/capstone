@@ -44,7 +44,7 @@ languages, it's worth writing a simple lexer using a @tt{lex} library in
 Racket.
 
 We'll now define a lexer for a subset of C's grammar. We'll use the lex
-tool that is implemented in a Racket package called @tt{parser-tools}.
+tool that is implemented in a Racket package called @tt{br-parser-tools}.
 
 First, we'll define all possible tokens that our lexer can generate from the
 source code. We'll call the first few @tt{value-tokens} since they contain literal

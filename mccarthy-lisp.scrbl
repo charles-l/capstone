@@ -3,10 +3,10 @@
 
 Lisp is extermely simple to implement in Lisp itself. A classic implementation
 can be found in @cite{SICP} (Chapter 4, the Metacircular Evaluator), which
-defines the interpreter elegently in terms of @tt{eval} and @tt{apply}, allowing
-the language implementor to leverage internal functions in the host language to
-evaluate code. Later chapters implement the interpreter in terms of a virtual
-machine.
+defines the interpreter elegently in terms of @tt{eval} and @tt{apply},
+while allowing the language implementor to leverage internal functions in
+the host language to evaluate code. Later chapters implement a simple
+compiler in terms of a virtual machine.
 
 However, the original Lisp interpreter written in Lisp is only a single page
 (reproduced and ported to Racket below) @cite{McCarthy, 1978}:
@@ -91,15 +91,16 @@ Granted, this code could possibly be refactored into some functions, and a few
 helper functions could make it easier to read. However, the @italic{entire
 implementation for a simple Lisp is one page}. This is one of the powerful
 features of Lisp. It's a language with a small kernel that's easy to implement.
-Once the kernel is impelmented, every feature expected in a high-level language
-is easy to add - Lisp isn't limited at all by its simple design. The design just
-makes it easier to reason about.
+Once the kernel is impelmented, every feature expected in a high-level
+language is easy to add. Lisp isn't limited in expressiveness because of
+its simple design. The design just makes it easy to reason about.
 
-Interpreters are very easy to build in Lisp, and Racket makes it easier with
-the ability to define the language you're using in the top of the file.
-Different "languages" are still compatable with each other (since they all have
-Racket interpreters in the end). We can mix typed Racket with standard Racket
-and lazy Racket in a project and all the code works together.
+Interpreters are simple to build in Lisp, and Racket makes it even easier
+with the ability to mix different languages implemented in Racket
+together. These different "languages" are still compatable with each other
+(since they all have Racket interpreters in the end). We can mix standard
+Racket with typed and lazy Racket in a single project, and all the code
+will still work together.
 
-We'll briefly look at a few interpreter implementation strategies and the
-various advantages and disadvantages associated with each.
+We'll briefly look at a few ways interpreter implementations are sped up
+through compilation.

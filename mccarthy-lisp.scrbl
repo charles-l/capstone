@@ -11,7 +11,8 @@ compiler in terms of a virtual machine.
 However, the original Lisp interpreter written in Lisp is only a single page
 (reproduced and ported to Racket below) @cite{McCarthy, 1978}:
 
-@code-examples[#:lang "racket" #:context #'here]{
+@chunk[<*>
+    (provide lisp-eval)
     (define (atom? x) (not (list? x)))
     (define (assoc e a)
      (cond
@@ -72,24 +73,29 @@ However, the original Lisp interpreter written in Lisp is only a single page
            (ffappend (pairup (cadar e) (evlis (cdr e) a)) a))))
         ((eq? (caar e) 'label)
          (lisp-eval (cons (caddar e) (cdr e))
-          (cons (cons (cadar e) (car e)) a)))))
+          (cons (cons (cadar e) (car e)) a)))))]
 
-          (lisp-eval '(car '(a)) '())
-          (lisp-eval '((lambda (n)
-                        (cond
-                         ((eq? n 1) 1)
-                         (t (* n (- n 1))))) 7)
-          '())
-          (lisp-eval '((label fac (lambda (n)
-                                   (cond
-                                    ((eq? n 1) 1)
-                                    (t (* n (fac (- n 1))))))) 7)
-          '())
-}
+Using it is as simple as:
+
+@code-examples[#:lang "racket" #:context #'here]|{
+    (require "mccarthy-lisp.scrbl")
+    (lisp-eval '(car '(a)) '())
+    (lisp-eval '((lambda (n)
+                  (cond
+                   ((eq? n 1) 1)
+                   (t (* n (- n 1))))) 7)
+     '())
+    (lisp-eval '((label fac (lambda (n)
+                             (cond
+                              ((eq? n 1) 1)
+                              (t (* n (fac (- n 1))))))) 7)
+     '())
+}|
+
 
 Granted, this code could possibly be refactored into some functions, and a few
 helper functions could make it easier to read. However, the @italic{entire
-implementation for a simple Lisp is one page}. This is one of the powerful
+implementation for a simple Lisp fits in a page and a half}. This is one of the powerful
 features of Lisp. It's a language with a small kernel that's easy to implement.
 Once the kernel is impelmented, every feature expected in a high-level
 language is easy to add. Lisp isn't limited in expressiveness because of

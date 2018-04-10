@@ -1,6 +1,7 @@
 #lang scribble/lp2
 @(require scribble-code-examples)
 @(require scriblib/footnote)
+@(require "util.rkt")
 
 Since @tt{yacc} and @tt{lex} are specialized domain specific languages with
 their own grammars and syntaxes, they stand out in source since they don't
@@ -322,14 +323,14 @@ referencing the current rule as the first term isn't allowed since it is
 a form of left-recursion. To eliminate left-recursion, we'll use the
 algorithm from the @cite{Dragon book} (Section 4.3.3.).
 
-@code{
-  for each production in the grammar:
-    if the production has the form A -> AX | Y:
-      (where X, Y are any number of terminals or nonterminals that do not begin with A)
-      replace the production with the following:
-	A -> YA'
-	A' -> XAA' | ε
-}
+@ttt|{
+for each production in the grammar:
+  if the production has the form A -> AX | Y:
+    (where X, Y are any number of terminals or nonterminals that do not begin with A)
+    replace the production with the following:
+      A -> YA'
+      A' -> XAA' | ε
+}|
 
 Without left recursion, our infix operator rule looks like:
 
@@ -429,11 +430,11 @@ as well.
             parser-seq
             (>>= (sstring "if") (lambda _ (return 'if)))
             (between (char #\() (char #\)) $expr)
-            (between (char #\{) (char #\}) $stmt-list)
+            (~ (char #\{)) $stmt-list (~ (char #\}))
             (<or> (intersperse-spaces
                     parser-seq
                     (>>= (sstring "else") (lambda _ (return 'else)))
-                    (between (char #\{) (char #\}) $stmt-list))
+                    (~ (char #\{)) $stmt-list (~ (char #\})))
                   (return '()))
             (~ $spaces)))]
 
@@ -458,8 +459,10 @@ And finally, our top-level function definition rule is written like so:
         parser-seq
         $sidentifier
         $sidentifier
-        (between (char #\() (char #\)) $arg-list)
-        (between (char #\{) (char #\}) (parser-one $spaces (~> $stmt-list) $spaces)))
+        (~ (char #\()) $arg-list (~ (char #\)))
+        (~ (char #\{))
+        $stmt-list
+        (~ (char #\})))
       (lambda (r) (return (cons 'fun r))))) ]
 
 
@@ -508,7 +511,7 @@ The parser combinator is capable of parsing a complex program like:
 
 @code-examples[#:lang "racket" #:eval ev #:context #'here]|{
   (require "c-parser-combinator.scrbl")
-  (parse-c "int main(int a) {
+  (parse-c "int main(int a){
               long x;
               x = 2;
               if(x){

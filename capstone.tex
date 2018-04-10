@@ -614,7 +614,6 @@
 \linespread{1.6}
 \rmfamily
 \fontsize{12}{2}
-
 \begin{document}
 \preDoc
 \titleAndEmptyVersionAndAuthors{Programming Language Implementation}{}{\SNumberOfAuthors{1}\SAuthor{Charles Saternos}}
@@ -790,11 +789,7 @@ parentheses carefully (a good editor is invaluable!).
 \RktErr{the{-}number{-}three: undefined;
  cannot reference an identifier before its definition
   in module: {\textquotesingle}anonymous{-}module
-  context...:
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}\end{SingleColumn}\end{SCodeFlow}
+  }\end{SingleColumn}\end{SCodeFlow}
 
 The DrRacet IDE that ships with Racket [\hyperref[t:x28cite_x22DrSchemex22x29]{DrScheme}] is a common choice
 for newcomers to the language. DrRacket features a REPL
@@ -1112,11 +1107,7 @@ longer exists. Attempting to reference it results in an error:
 \RktErr{x: undefined;
  cannot reference an identifier before its definition
   in module: {\textquotesingle}anonymous{-}module
-  context...:
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}\end{SingleColumn}\end{SCodeFlow}
+  }\end{SingleColumn}\end{SCodeFlow}
 
 Variations of \Scribtexttt{let} allow the programmer to specify whether bindings
 can reference each other (\Scribtexttt{let*}), or reference themselves recursively
@@ -1616,12 +1607,7 @@ coffee.
 \hbox{\RktMeta{}\RktPn{(}\RktSym{send}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktSym{my{-}coffeemaker}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktSym{make{-}coffee{\hbox{\texttt{!}}}}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
 \RktErr{Coffee maker must be turned on to make coffee
-  context...:
-   str{-}w/{-}lang{-}$>$module{-}syntax:7:4: make{-}coffee! method in coffeemaker{-}class\%
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}
+  }
 
 \begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
 \hbox{\Scribtexttt{{\Stttextmore}}} &
@@ -1849,19 +1835,7 @@ a compile{-}time error.
   expected: Real
   given: String
   in: "static typing makes code safe!"
-  context...:
-   /usr/share/racket/pkgs/typed{-}racket{-}lib/typed{-}racket/typecheck/check{-}below.rkt:110:5: perform{-}check!
-   ...t/private/kw.rkt:764:9
-   parse{-}loop494
-   fail{-}handler867
-   fail{-}handler102
-   /usr/share/racket/pkgs/typed{-}racket{-}lib/typed{-}racket/typecheck/tc{-}expr{-}unit.rkt:78:0: core87
-   /usr/share/racket/pkgs/typed{-}racket{-}lib/typed{-}racket/typecheck/tc{-}toplevel.rkt:599:0: tc{-}toplevel{-}form
-   fail{-}handler46
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}\end{SingleColumn}\end{SCodeFlow}
+  }\end{SingleColumn}\end{SCodeFlow}
 
 Since the types are explicitly defined by the programmer, there{'}s little
 room for ambiguity. In cases where a programmer wants to define a function
@@ -2825,12 +2799,7 @@ An example to demonstrate what it can do:
 \hbox{\RktMeta{}\RktPn{(}\RktMeta{num{-}parser}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{c{-}lexer}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{test{-}input}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
 \RktErr{parsing failed, unexpected  ID "a"
-  context...:
-   /home/nc/.racket/6.12/pkgs/br{-}parser{-}tools{-}lib/br{-}parser{-}tools/yacc.rkt:353:14: parsing{-}loop
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}\end{SingleColumn}\end{SCodeFlow}
+  }\end{SingleColumn}\end{SCodeFlow}
 
 A \Scribtexttt{number} can be an \Scribtexttt{INT} token or a \Scribtexttt{DOUBLE} token. Since we have
 both \Scribtexttt{INT} and \Scribtexttt{DOUBLE} listed as numbers, the rule will match either token
@@ -3200,13 +3169,7 @@ digit. We can also match whole strings.
 \RktErr{parse ERROR: at 1:1:1
 unexpected: "a"
   expected: "digit"
-  context...:
-   /home/nc/.racket/6.12/pkgs/parsack/parsack/parsack.rkt:464:0: parse53
-   [repeats 1 more time]
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}
+  }
 
 \begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
 \hbox{\Scribtexttt{{\Stttextmore}}} &
@@ -3616,7 +3579,7 @@ referencing the current rule as the first term isn{'}t allowed since it is
 a form of left{-}recursion. To eliminate left{-}recursion, we{'}ll use the
 algorithm from the [\hyperref[t:x28cite_x22Dragon_bookx22x29]{Dragon book}] (Section 4.3.3.).
 
-\RktMeta{for}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{each}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{production}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{in}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{the}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{grammar{\hbox{\texttt{:}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{if}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{the}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{production}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{has}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{the}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{form}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{A}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{{-}{\Stttextmore}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{AX}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{{\Stttextbar}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{Y{\hbox{\texttt{:}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{(where}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{X,}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{Y}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{are}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{any}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{number}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{of}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{terminals}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{or}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{nonterminals}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{that}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{do}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{not}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{begin}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{with}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{A)}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{replace}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{the}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{production}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{with}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{the}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{following{\hbox{\texttt{:}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{A}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{{-}{\Stttextmore}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{YA{\textquotesingle}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{A{\textquotesingle}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{{-}{\Stttextmore}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{XAA{\textquotesingle}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{{\Stttextbar}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{$\varepsilon$}
+\hspace*{\fill}\\\Scribtexttt{for each production in the grammar{\hbox{\texttt{:}}}}\hspace*{\fill}\\\Scribtexttt{if the production has the form A {-}{\Stttextmore} AX {\Stttextbar} Y{\hbox{\texttt{:}}}}\hspace*{\fill}\\\Scribtexttt{(where X, Y are any number of terminals or nonterminals that do not begin with A)}\hspace*{\fill}\\\Scribtexttt{replace the production with the following{\hbox{\texttt{:}}}}\hspace*{\fill}\\\Scribtexttt{A {-}{\Stttextmore} YA}\Scribtexttt{{'}}\Scribtexttt{}\hspace*{\fill}\\\Scribtexttt{A}\Scribtexttt{{'}}\Scribtexttt{ {-}{\Stttextmore} XAA}\Scribtexttt{{'}}\Scribtexttt{ {\Stttextbar} $\varepsilon$}\hspace*{\fill}\\
 
 Without left recursion, our infix operator rule looks like:
 
@@ -3762,7 +3725,7 @@ as well.
 
 \mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{between}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}(}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\})}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$expr}\RktPn{)}
 
-\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{between}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$stmt{-}list}\RktPn{)}
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$stmt{-}list}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\RktPn{)}
 
 \mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{{\Stttextless}or{\Stttextmore}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{intersperse{-}spaces}
 
@@ -3770,7 +3733,7 @@ as well.
 
 \mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{{\Stttextmore}{\Stttextmore}=}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{sstring}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{"else"}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{lambda}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\badlink{\RktValLink{{\char`\_}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{return}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{else}\RktPn{)}\RktPn{)}\RktPn{)}
 
-\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{between}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$stmt{-}list}\RktPn{)}\RktPn{)}
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$stmt{-}list}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\RktPn{)}\RktPn{)}
 
 \mbox{\hphantom{\Scribtexttt{xxxxxxxxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{return}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}\RktPn{)}
 
@@ -3812,9 +3775,13 @@ And finally, our top{-}level function definition rule is written like so:
 
 \mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktSym{\$sidentifier}
 
-\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{between}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}(}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\})}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$arg{-}list}\RktPn{)}
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}(}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$arg{-}list}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\})}\RktPn{)}\RktPn{)}
 
-\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{between}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{parser{-}one}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\badlink{\RktValLink{\$spaces}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{$\sim${\Stttextmore}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\$stmt{-}list}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{\badlink{\RktValLink{\$spaces}}}\RktPn{)}\RktPn{)}\RktPn{)}
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\{}}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktSym{\$stmt{-}list}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{$\sim$}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{char}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#{\char`\\}{\char`\}}}\RktPn{)}\RktPn{)}\RktPn{)}
 
 \mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{\badlink{\RktValLink{lambda}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{r}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{return}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{\badlink{\RktValLink{cons}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{fun}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{r}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\end{SingleColumn}\end{RktBlk}\end{SCodeFlow}
 
@@ -3891,7 +3858,7 @@ The parser combinator is capable of parsing a complex program like:
 \hbox{\Scribtexttt{{\Stttextmore}}} &
 \hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
 \begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
-\hbox{\RktMeta{}\RktPn{(}\RktMeta{parse{-}c}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{"int}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{main(int}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{a)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\char`\{}}} \\
+\hbox{\RktMeta{}\RktPn{(}\RktMeta{parse{-}c}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{"int}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{main(int}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{a){\char`\{}}} \\
 \hbox{\RktVal{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktVal{long}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{x;}} \\
 \hbox{\RktVal{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktVal{x}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{=}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{2;}} \\
 \hbox{\RktVal{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktVal{if(x){\char`\{}}} \\
@@ -3902,17 +3869,7 @@ The parser combinator is capable of parsing a complex program like:
 \hbox{\RktVal{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxx}}}\RktVal{return}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{f(1+a*x);}} \\
 \hbox{\RktVal{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxx}}}\RktVal{{\char`\}}"}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
-\RktErr{parse ERROR: at 4:18:75
-unexpected: "\{"
-  expected: "white space or ;"
-  context...:
-   /home/nc/.racket/6.12/pkgs/parsack/parsack/parsack.rkt:464:0: parse53
-   [repeats 1 more time]
-   /home/nc/.racket/6.12/pkgs/parsack/parsack/parsack.rkt:486:0: parse{-}result
-   /usr/share/racket/collects/racket/private/more{-}scheme.rkt:148:2: call{-}with{-}break{-}parameterization
-   .../more{-}scheme.rkt:261:28
-   /usr/share/racket/pkgs/sandbox{-}lib/racket/sandbox.rkt:861:5: loop
-}\end{SingleColumn}\end{SCodeFlow}
+\RktRes{{\textquotesingle}(fun "int" "main" (("int" "a")) ((def "long" "x") (= "x" 2) (if ("x") ((return ("a"))) (else ((= "x" 3)))) (return (("f" ((1 + "a" * "x")))))))}\end{SingleColumn}\end{SCodeFlow}
 
 No book on language implementation is complete without a brief look into
 parsing techniques. However, for the rest of the book, we will be using
@@ -3943,86 +3900,139 @@ compiler in terms of a virtual machine.
 However, the original Lisp interpreter written in Lisp is only a single page
 (reproduced and ported to Racket below) [\hyperref[t:x28cite_x22McCarthyx2c_1978x22x29]{McCarthy, 1978}]:
 
+\label{t:x28elem_x28chunk_x22x3cx2ax3ex3a1x22x29x29}\textbf{\textit{\hyperref[t:x28elem_x28chunk_x22x3cx2ax3ex3a1x22x29x29]{\plainlink{$<$*$>$}}} ::=}
+
+\begin{SCodeFlow}\begin{RktBlk}\begin{SingleColumn}\RktPn{(}\RktSym{provide}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{lisp{-}eval}\RktPn{)}
+
+\RktPn{(}\RktSym{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{x}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{not}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{list{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{x}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\RktPn{(}\RktSym{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cond}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktPn{(}\RktSym{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\RktPn{(}\RktSym{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cond}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktPn{(}\RktSym{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{else}
+
+\mbox{\hphantom{\Scribtexttt{xxx}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\RktPn{(}\RktSym{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxx}}}\RktPn{(}\RktSym{cond}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{t}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{\#t}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktPn{(}\RktPn{(}\RktSym{number{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktPn{(}\RktSym{else}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxx}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktPn{(}\RktSym{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxx}}}\RktPn{(}\RktSym{cond}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{quote}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{car}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{cdr}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{cadr}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{caddr}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{caar}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktPn{(}\RktSym{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{cadar}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{caddar}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{atom{\hbox{\texttt{?}}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{null{\hbox{\texttt{?}}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xx}}}\RktPn{(}\RktSym{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{cons}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{eq{\hbox{\texttt{?}}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{*}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{\mbox{{-}}}\RktPn{)}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{\mbox{{-}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{cond}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktPn{(}\RktSym{letrec}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktSym{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{lambda}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{letrec}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{v}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktPn{(}\RktSym{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{(}\RktVal{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktPn{(}\RktSym{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{u}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxxx}}}\RktPn{(}\RktSym{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktPn{(}\RktPn{(}\RktSym{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktVal{{\textquotesingle}}\RktVal{label}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktPn{(}\RktSym{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\RktPn{)}
+
+\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktPn{(}\RktSym{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{e}\RktPn{)}\RktPn{)}\mbox{\hphantom{\Scribtexttt{x}}}\RktSym{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\end{SingleColumn}\end{RktBlk}\end{SCodeFlow}
+
+Using it is as simple as:
+
 \begin{SCodeFlow}\begin{SingleColumn}\begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
 \hbox{\Scribtexttt{{\Stttextmore}}} &
 \hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
 \begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
-\hbox{\RktMeta{}\RktPn{(}\RktMeta{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{x}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{not}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{list{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{x}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
-
-\begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
-\hbox{\Scribtexttt{{\Stttextmore}}} &
-\hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
-\begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
-\hbox{\RktMeta{}\RktPn{(}\RktMeta{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
-
-\begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
-\hbox{\Scribtexttt{{\Stttextmore}}} &
-\hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
-\begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
-\hbox{\RktMeta{}\RktPn{(}\RktMeta{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{else}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
-
-\begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
-\hbox{\Scribtexttt{{\Stttextmore}}} &
-\hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
-\begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
-\hbox{\RktMeta{}\RktPn{(}\RktMeta{define}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{t}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{\#t}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{number{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{else}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{quote}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{car}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{cdr}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{cadr}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{caddr}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{caar}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktMeta{}\RktPn{(}\RktMeta{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{cadar}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{caddar}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{atom{\hbox{\texttt{?}}}}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{atom{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{null{\hbox{\texttt{?}}}}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xx}}}\RktMeta{}\RktPn{(}\RktMeta{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{cons}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxx}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{eq{\hbox{\texttt{?}}}}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{*}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{{-}}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{{-}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{cond}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{letrec}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{evcond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktMeta{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{assoc}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{lambda}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{letrec}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{v}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{u}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{null{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{else}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{u}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{ffappend}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{pairup}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{evlis}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktMeta{label}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{caddar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cdr}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cons}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{cadar}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{car}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{e}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{a}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
+\hbox{\RktMeta{}\RktPn{(}\RktMeta{require}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{"mccarthy{-}lisp{\hbox{\texttt{.}}}scrbl"}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
 \begin{bigtabular}{@{\bigtableleftpad}l@{}l@{}l@{}}
 \hbox{\Scribtexttt{{\Stttextmore}}} &
@@ -4037,10 +4047,10 @@ However, the original Lisp interpreter written in Lisp is only a single page
 \hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
 \begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
 \hbox{\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{n}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{t}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{{-}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{7}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{t}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{{-}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{7}\RktPn{)}\RktMeta{}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
 \RktRes{42}
 
@@ -4049,16 +4059,16 @@ However, the original Lisp interpreter written in Lisp is only a single page
 \hbox{\mbox{\hphantom{\Scribtexttt{x}}}} &
 \begin{RktBlk}\begin{tabular}[t]{@{}l@{}}
 \hbox{\RktMeta{}\RktPn{(}\RktMeta{lisp{-}eval}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{(}\RktMeta{label}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{fac}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{lambda}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{n}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{t}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{fac}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{{-}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{7}\RktPn{)}\RktMeta{}} \\
-\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxx}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{cond}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktPn{(}\RktMeta{eq{\hbox{\texttt{?}}}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktMeta{}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{xxxxxxxxxxxxxxxxxxxxxxxxxx}}}\RktMeta{}\RktPn{(}\RktMeta{t}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{*}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{fac}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktPn{(}\RktMeta{{-}}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{n}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{1}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktPn{)}\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{7}\RktPn{)}\RktMeta{}} \\
+\hbox{\RktMeta{}\mbox{\hphantom{\Scribtexttt{x}}}\RktMeta{}\RktVal{{\textquotesingle}}\RktPn{(}\RktPn{)}\RktPn{)}\RktMeta{}}\end{tabular}\end{RktBlk}\end{bigtabular}
 
 \RktRes{5040}\end{SingleColumn}\end{SCodeFlow}
 
 Granted, this code could possibly be refactored into some functions, and a few
 helper functions could make it easier to read. However, the \textit{entire
-implementation for a simple Lisp is one page}. This is one of the powerful
+implementation for a simple Lisp fits in a page and a half}. This is one of the powerful
 features of Lisp. It{'}s a language with a small kernel that{'}s easy to implement.
 Once the kernel is impelmented, every feature expected in a high{-}level
 language is easy to add. Lisp isn{'}t limited in expressiveness because of

@@ -184,7 +184,7 @@ Putting it all together, we get the final module file:
 Our lexer can be used in the following manner
 (though it generally isn't used on its own - we'll add the parser next):
 
-@(define ev (make-code-eval #:lang "racket" #:allow-for-require `(,(string->path "c-lexer.scrbl"))))
+@(define ev (make-code-eval #:lang "racket"))
 @(ev '(require "c-lexer.scrbl"))
 
 @code-examples[#:lang "racket" #:context #'here #:eval ev]{

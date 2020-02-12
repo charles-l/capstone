@@ -36,7 +36,7 @@ First we'll include the necessary libraries
 
 Then, we'll write the @tt{numbers} rule.
 
-@(define ev (make-code-eval #:lang "racket" #:allow-for-require `(,(string->path "c-lexer.scrbl"))))
+@(define ev (make-code-eval #:lang "racket"))
 @(ev '(require br-parser-tools/yacc))
 @(ev '(require br-parser-tools/lex))
 @(ev '(require "c-lexer.scrbl"))
